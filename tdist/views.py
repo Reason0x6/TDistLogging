@@ -56,7 +56,7 @@ def full_log(request):
 
 def log(request, batch_id):
     """Log page view for editing batch records."""
-    batch = get_object_or_404(Batch, pk=batch_id)
+    batch = get_object_or_404(Batch, batch_number=batch_id)
     
     if request.method == 'POST':
         # Handle form submission for updating records
@@ -69,7 +69,7 @@ def log(request, batch_id):
         
         batch.save()
         messages.success(request, 'Batch records updated successfully!')
-        return redirect('log', batch_id=batch.id)
+        return redirect('log', batch_id=batch.batch_number)
     
     # Get actual Record objects for each entry
     records_with_data = {}
