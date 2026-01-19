@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.http import HttpResponse
 from distillery.forms import RecordForm
 from distillery.models import Record, Batch
 from django.db.models import Q
 from datetime import date
+import csv
 
 def index(request):
     """Home page view showing batches with search functionality."""
@@ -183,3 +185,68 @@ def edit_record(request, batch_id, record_id):
         'record': record,
         'is_edit': True
     })
+
+def export_batch_csv(request, batch_id):
+    """Export batch and all its records as CSV."""
+    batch = get_object_or_404(Batch, batch_number=batch_id)
+    
+    # Create the HttpResponse object with CSV header
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="batch_{batch.batch_number}_export.csv"'
+    
+    writer = csv.writer(response)
+    
+    # Write batch header info
+    writer.writerow(['Batch Information'])
+    writer.writerow(['Batch Number', batch.batch_number])
+    writer.writerow(['Recipe', batch.recipe])
+    writer.writerow(['Created', batch.created_at.strftime('%Y-%m-%d %H:%M')])
+    writer.writerow(['Updated', batch.updated_at.strftime('%Y-%m-%d %H:%M')])
+    writer.writerow([])  # Empty row for separation
+    
+    # Write records header
+    writer.writerow(['Records'])
+    writer.writerow([
+        'Section',
+        'Description',
+        'From',
+        'To',
+        'Volume (L)',
+        'Start Date',
+        'SG Start',
+        'End Date',
+        'SG End',
+        'ABV (%)',
+        'LAL',
+        'Created',
+        'Updated'
+    ])
+    
+    # Write all records organized by section
+    for section, entries in batch.records_data.items():
+        for entry in entries:
+            record_id = entry.get('record_id')
+            if record_id:
+                try:
+                    record = Record.objects.get(pk=record_id)
+                    writer.writerow([
+                        section,
+                        record.description,
+                        record.from_field or '',
+                        record.to_field or '',
+                        record.volume_in_l or '',
+                        record.start_date.strftime('%Y-%m-%d') if record.start_date else '',
+                        record.sg_start or '',
+                        record.date.strftime('%Y-%m-%d') if record.date else '',
+                        record.sg_end or '',
+                        record.abv or '',
+                        record.lal or '',
+                        record.created_at.strftime('%Y-%m-%d %H:%M'),
+                        record.updated_at.strftime('%Y-%m-%d %H:%M')
+                    ])
+                except Record.DoesNotExist:
+                    writer.writerow([section, entry['description'], '', '', '', '', '', '', '', '', '', '', ''])
+            else:
+                writer.writerow([section, entry['description'], '', '', '', '', '', '', '', '', '', '', ''])
+    
+    return response

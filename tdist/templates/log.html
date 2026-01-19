@@ -9,9 +9,14 @@
             <h1>Batch #{{ batch.batch_number }} - Edit Logs</h1>
             <p style="color: #666; margin: 0.5rem 0; font-size: 13px;">Created: {{ batch.created_at|date:"Y-m-d H:i" }} | Updated: {{ batch.updated_at|date:"Y-m-d H:i" }}</p>
         </div>
-        <a href="{% url 'index' %}" style="padding: 0.625rem 1.25rem; background: #f5f5f5; color: #666; border: 1px solid #e5e5e5; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: all 0.2s;">
-            ← Back to Home
-        </a>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="{% url 'export_batch_csv' batch.batch_number %}" style="padding: 0.625rem 1.25rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: all 0.2s;">
+                📥 Export CSV
+            </a>
+            <a href="{% url 'index' %}" style="padding: 0.625rem 1.25rem; background: #f5f5f5; color: #666; border: 1px solid #e5e5e5; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: all 0.2s;">
+                ← Back to Home
+            </a>
+        </div>
     </div>
     
     <div style="margin-top: 1rem; padding: 1rem 1.25rem; background: #fafafa; border-radius: 10px; border: 1px solid #e5e5e5;">
