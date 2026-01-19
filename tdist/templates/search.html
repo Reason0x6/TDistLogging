@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Search - TDist Logging{% endblock %}
+
+{% block content %}
+<h1>Search Records</h1>
+<p>View and search the last 15 records.</p>
+
+<!-- Search Form -->
+<form method="get" style="margin-top: 2rem; margin-bottom: 2rem;">
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <input 
+            type="text" 
+            name="q" 
+            placeholder="Search by description, from, or to..." 
+            style="flex: 1; min-width: 250px; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;"
+            value="{{ query }}"
+        >
+        <button 
+            type="submit" 
+            style="padding: 0.75rem 2rem; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: bold;"
+        >
+            Search
+        </button>
+        {% if query %}
+        <a 
+            href="{% url 'search' %}" 
+            style="padding: 0.75rem 1.5rem; background: #95a5a6; color: white; border: none; border-radius: 4px; text-decoration: none; font-size: 1rem; display: inline-block;"
+        >
+            Clear
+        </a>
+        {% endif %}
+    </div>
+</form>
+
+<!-- Results Table -->
+<div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+    <div style="background: #3498db; color: white; padding: 1rem 1.5rem;">
+        <h2 style="margin: 0; font-size: 1.25rem;">Records</h2>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">
+            {% if query %}
+                Search results for "{{ query }}" - {{ records|length }} record(s) found
+            {% else %}
+                Showing last 15 records
+            {% endif %}
+        </p>
+    </div>
+    
+    {% if records %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+            <thead>
+                <tr style="background: #f8f9fa;">
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">Created</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">Description</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">From</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">To</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">Volume (L)</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">Start Date</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">SG Start</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">End Date</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">SG End</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">ABV (%)</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #2c3e50; white-space: nowrap;">LAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr style="border-bottom: 1px solid #dee2e6;">
+                    <td style="padding: 1rem; color: #495057; white-space: nowrap;">{{ record.created_at|date:"Y-m-d H:i" }}</td>
+                    <td style="padding: 1rem; color: #495057;">{{ record.description }}</td>
+                    <td style="padding: 1rem; color: #495057;">{{ record.from_field }}</td>
+                    <td style="padding: 1rem; color: #495057;">{{ record.to_field }}</td>
+                    <td style="padding: 1rem; color: #495057;">{{ record.volume_in_l }}</td>
+                    <td style="padding: 1rem; color: #495057; white-space: nowrap;">{{ record.start_date|date:"Y-m-d" }}</td>
+                    <td style="padding: 1rem; color: #495057;">{{ record.sg_start }}</td>
+                    <td style="padding: 1rem; color: #495057; white-space: nowrap;">{{ record.date|date:"Y-m-d" }}</td>
+                    <td style="padding: 1rem; color: #495057;">{{ record.sg_end }}</td>
+                    <td style="padding: 1rem; color: #495057;">{{ record.abv }}</td>
+                    <td style="padding: 1rem; color: #495057;">{{ record.lal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="padding: 3rem; text-align: center;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+        <p style="color: #666; margin: 0; font-size: 1.1rem;">
+            {% if query %}
+                No records found matching "{{ query }}".
+            {% else %}
+                No records yet. Start by adding entries in the <a href="{% url 'log' %}" style="color: #3498db;">Log</a> page.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    table tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    @media (max-width: 768px) {
+        table {
+            font-size: 0.8rem;
+        }
+        
+        th, td {
+            padding: 0.75rem !important;
+        }
+    }
+</style>
+
+{% endblock %}

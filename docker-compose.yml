@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD:-admin123}
