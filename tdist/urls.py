@@ -20,8 +20,10 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('search/', views.search, name='search'),
-    path('log/', views.log, name='log'),
+    path('log/<int:batch_id>/', views.log, name='log'),
+    path('create-batch/', views.create_batch, name='create_batch'),
+    path('batch/<int:batch_id>/record/create/<str:section>/<int:index>/', views.create_record, name='create_record'),
+    path('batch/<int:batch_id>/record/edit/<int:record_id>/', views.edit_record, name='edit_record'),
     path('full-log/', views.full_log, name='full_log'),
     path('admin/', admin.site.urls),
 ]

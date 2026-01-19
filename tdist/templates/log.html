@@ -1,85 +1,113 @@
 {% extends 'base.html' %}
 
-{% block title %}Log - TDist Logging{% endblock %}
+{% block title %}Edit Batch Logs - TDist Logging{% endblock %}
 
 {% block content %}
-<h1>Create Log Entry</h1>
-<p>Add a new record to the system.</p>
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div>
+            <h1>Batch #{{ batch.batch_number }} - Edit Logs</h1>
+            <p style="color: #666; margin: 0.5rem 0; font-size: 13px;">Created: {{ batch.created_at|date:"Y-m-d H:i" }} | Updated: {{ batch.updated_at|date:"Y-m-d H:i" }}</p>
+        </div>
+        <a href="{% url 'index' %}" style="padding: 0.625rem 1.25rem; background: #f5f5f5; color: #666; border: 1px solid #e5e5e5; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: all 0.2s;">
+            ← Back to Home
+        </a>
+    </div>
+    
+    <div style="margin-top: 1rem; padding: 1rem 1.25rem; background: #fafafa; border-radius: 10px; border: 1px solid #e5e5e5;">
+        <strong style="color: #1a1a1a; font-size: 13px; font-weight: 600;">Recipe:</strong>
+        <p style="margin: 0.5rem 0 0 0; color: #666; font-size: 14px;">{{ batch.recipe }}</p>
+    </div>
+</div>
 
 {% if messages %}
 <div style="margin: 1.5rem 0;">
     {% for message in messages %}
-    <div style="padding: 1rem; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724;">
+    <div style="padding: 1rem 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534; font-size: 14px;">
         {{ message }}
     </div>
     {% endfor %}
 </div>
 {% endif %}
 
-<form method="post" style="margin-top: 2rem;">
-    {% csrf_token %}
+<div style="background: white; border-radius: 12px; border: 1px solid #e5e5e5; overflow: hidden;">
+    <div style="background: #fafafa; border-bottom: 1px solid #e5e5e5; padding: 1.25rem 1.5rem;">
+        <h2 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: #1a1a1a;">Batch Records</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #666; font-size: 13px;">Link existing records to this batch</p>
+    </div>
     
-    <div style="display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-        {% for field in form %}
-        <div>
-            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2c3e50;">
-                {{ field.label }}
-                {% if field.field.required %}<span style="color: red;">*</span>{% endif %}
-            </label>
+    <div style="padding: 1.5rem;">
+        {% for key, entries in records_data.items %}
+        <details style="margin-bottom: 1rem; border: 1px solid #e5e5e5; border-radius: 10px;" {% if forloop.first %}open{% endif %}>
+            <summary style="padding: 1rem 1.25rem; background: #fafafa; cursor: pointer; font-weight: 600; font-size: 15px; color: #1a1a1a; border-radius: 10px;">
+                {{ key }} ({{ entries|length }} record{{ entries|length|pluralize }})
+            </summary>
             
-            {% if field.help_text %}
-            <p style="font-size: 0.875rem; color: #666; margin-bottom: 0.25rem;">{{ field.help_text }}</p>
-            {% endif %}
-            
-            {{ field }}
-            
-            {% if field.errors %}
-            <div style="color: red; font-size: 0.875rem; margin-top: 0.25rem;">
-                {{ field.errors }}
+            <div style="padding: 1.5rem;">
+                <div style="display: grid; gap: 1rem;">
+                    {% for entry in entries %}
+                    <div style="padding: 1rem 1.25rem; border: 1px solid #e5e5e5; border-radius: 8px; background: white;">
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #1a1a1a; font-size: 14px; font-weight: 600;">{{ entry.description }}</strong>
+                        </div>
+                        
+                        {% if entry.record %}
+                        <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                <div><strong style="color: #666;">From:</strong> <span style="color: #1a1a1a;">{{ entry.record.from_field|default:"-" }}</span></div>
+                                <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ entry.record.to_field|default:"-" }}</span></div>
+                                <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.volume_in_l|default:"-" }}</span></div>
+                                <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.start_date|date:"Y-m-d"|default:"-" }}</span></div>
+                                <div><strong style="color: #666;">SG Start:</strong> <span style="color: #1a1a1a;">{{ entry.record.sg_start|default:"-" }}</span></div>
+                                <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.date|date:"Y-m-d"|default:"-" }}</span></div>
+                                <div><strong style="color: #666;">SG End:</strong> <span style="color: #1a1a1a;">{{ entry.record.sg_end|default:"-" }}</span></div>
+                                <div><strong style="color: #666;">ABV (%):</strong> <span style="color: #1a1a1a;">{{ entry.record.abv|default:"-" }}</span></div>
+                                <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ entry.record.lal|default:"-" }}</span></div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'edit_record' batch.batch_number entry.record_id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                ✏️ Edit Record
+                            </a>
+                        </div>
+                        {% else %}
+                        <p style="margin: 0 0 0.75rem 0; color: #999; font-style: italic; font-size: 13px;">No record linked</p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'create_record' batch.batch_number entry.section entry.index %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                ➕ Create Record
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-            {% endif %}
-        </div>
+        </details>
         {% endfor %}
     </div>
-    
-    <div style="margin-top: 2rem;">
-        <button 
-            type="submit" 
-            style="padding: 0.75rem 2rem; background: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: bold;"
-        >
-            Create Record
-        </button>
-    </div>
-</form>
+</div>
 
 <style>
-    /* Style form inputs */
-    input[type="text"],
-    input[type="number"],
-    input[type="date"],
-    select,
-    textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 1rem;
-        font-family: inherit;
+    details > summary {
+        list-style: none;
     }
     
-    input[type="text"]:focus,
-    input[type="number"]:focus,
-    input[type="date"]:focus,
-    select:focus,
-    textarea:focus {
-        outline: none;
-        border-color: #2ecc71;
-        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+    details > summary::-webkit-details-marker {
+        display: none;
     }
     
-    textarea {
-        resize: vertical;
-        min-height: 100px;
+    details > summary::before {
+        content: '▶ ';
+        display: inline-block;
+        transition: transform 0.2s;
+    }
+    
+    details[open] > summary::before {
+        transform: rotate(90deg);
+    }
+    
+    details > summary:hover {
+        background: #f5f5f5;
     }
 </style>
 

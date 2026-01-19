@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Record - TDist Logging{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div>
+            <h1>{% if is_edit %}Edit{% else %}Create{% endif %} Record</h1>
+            <p style="color: #666; margin: 0.5rem 0; font-size: 13px;">
+                Batch #{{ batch.batch_number }} - {{ batch.recipe }}
+                {% if not is_edit %}
+                <br><strong style="color: #1a1a1a;">Section:</strong> {{ section }} - <strong style="color: #1a1a1a;">Type:</strong> {{ expected_description }}
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'log' batch.batch_number %}" style="padding: 0.625rem 1.25rem; background: #f5f5f5; color: #666; border: 1px solid #e5e5e5; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: all 0.2s;">
+            ← Back to Batch
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+<div style="margin: 1.5rem 0;">
+    {% for message in messages %}
+    <div style="padding: 1rem 1.25rem; background: {% if 'error' in message.tags %}#fef2f2{% else %}#f0fdf4{% endif %}; border: 1px solid {% if 'error' in message.tags %}#fecaca{% else %}#bbf7d0{% endif %}; border-radius: 8px; color: {% if 'error' in message.tags %}#991b1b{% else %}#166534{% endif %}; font-size: 14px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="post" style="margin-top: 2rem;">
+    {% csrf_token %}
+    
+    <div style="display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+        {% for field in form %}
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1a1a1a; font-size: 14px;">
+                {{ field.label }}
+                {% if field.field.required %}<span style="color: #ef4444;">*</span>{% endif %}
+            </label>
+            
+            {% if field.help_text %}
+            <p style="font-size: 13px; color: #666; margin-bottom: 0.25rem;">{{ field.help_text }}</p>
+            {% endif %}
+            
+            {{ field }}
+            
+            {% if field.errors %}
+            <div style="color: #ef4444; font-size: 13px; margin-top: 0.25rem;">
+                {{ field.errors }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+        <button 
+            type="submit" 
+            style="padding: 0.625rem 1.25rem; background: #1a1a1a; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;"
+        >
+            {% if is_edit %}Update{% else %}Create{% endif %} Record
+        </button>
+        <a 
+            href="{% url 'log' batch.batch_number %}" 
+            style="padding: 0.625rem 1.25rem; background: #f5f5f5; color: #666; border: 1px solid #e5e5e5; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block; transition: all 0.2s;"
+        >
+            Cancel
+        </a>
+    </div>
+</form>
+
+<style>
+    /* Style form inputs */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.625rem 1rem;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+    }
+    
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #1a1a1a;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+    }
+    
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+</style>
+
+{% endblock %}

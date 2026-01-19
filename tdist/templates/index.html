@@ -1,30 +1,84 @@
 {% extends 'base.html' %}
 
-{% block title %}Home - TDist Logging{% endblock %}
+{% block title %}Home - Batches{% endblock %}
 
 {% block content %}
-<h1>Welcome to TDist Logging</h1>
-<p>Use the menu above to navigate to different sections:</p>
-
-<div style="margin-top: 2rem;">
-    <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-        <div style="border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px;">
-            <h2 style="margin-bottom: 0.5rem; color: #2c3e50;">🔍 Search</h2>
-            <p style="color: #666; margin-bottom: 1rem;">Search and view the last 15 records.</p>
-            <a href="{% url 'search' %}" style="display: inline-block; background: #3498db; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px;">Go to Search</a>
-        </div>
-        
-        <div style="border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px;">
-            <h2 style="margin-bottom: 0.5rem; color: #2c3e50;">📝 Log</h2>
-            <p style="color: #666; margin-bottom: 1rem;">Create and manage log entries.</p>
-            <a href="{% url 'log' %}" style="display: inline-block; background: #2ecc71; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px;">Go to Log</a>
-        </div>
-        
-        <div style="border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px;">
-            <h2 style="margin-bottom: 0.5rem; color: #2c3e50;">📋 Full Log</h2>
-            <p style="color: #666; margin-bottom: 1rem;">View all records in the system.</p>
-            <a href="{% url 'full_log' %}" style="display: inline-block; background: #9b59b6; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px;">Go to Full Log</a>
-        </div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h1>Batches</h1>
+    <div style="display: flex; gap: 1rem;">
+        <a href="{% url 'create_batch' %}" style="padding: 0.625rem 1.25rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: all 0.2s;">
+            ➕ Create Batch
+        </a>
     </div>
+</div>
+
+<!-- Search Form -->
+<form method="get" style="margin-bottom: 2rem;">
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <input 
+            type="text" 
+            name="q" 
+            placeholder="Search by batch number or recipe..." 
+            style="flex: 1; min-width: 250px; padding: 0.625rem 1rem; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 14px;"
+            value="{{ query }}"
+        >
+        <button 
+            type="submit" 
+            style="padding: 0.625rem 1.25rem; background: #1a1a1a; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;"
+        >
+            🔍 Search
+        </button>
+        {% if query %}
+        <a 
+            href="{% url 'index' %}" 
+            style="padding: 0.625rem 1.25rem; background: #f5f5f5; color: #666; border: 1px solid #e5e5e5; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block; transition: all 0.2s;"
+        >
+            Clear
+        </a>
+        {% endif %}
+    </div>
+</form>
+
+<div style="background: white; border-radius: 12px; border: 1px solid #e5e5e5; overflow: hidden;">
+    <div style="background: #fafafa; border-bottom: 1px solid #e5e5e5; padding: 1.25rem 1.5rem;">
+        <h2 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: #1a1a1a;">{% if query %}Search Results{% else %}Recent Batches{% endif %}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #666; font-size: 13px;">
+            {% if query %}
+                Search results for "{{ query }}" - {{ batches|length }} batch(es) found
+            {% else %}
+                Last 5 batches created
+            {% endif %}
+        </p>
+    </div>
+    
+    {% if batches %}
+    <div style="padding: 1.5rem;">
+        {% for batch in batches %}
+        <div style="border: 1px solid #e5e5e5; border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; background: #fafafa;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                <div>
+                    <h3 style="margin: 0 0 0.5rem 0; color: #1a1a1a; font-size: 1.125rem; font-weight: 600;">Batch #{{ batch.batch_number }}</h3>
+                    <p style="margin: 0; color: #666; font-size: 13px;">Created: {{ batch.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <a href="{% url 'log' batch.batch_number %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 13px; transition: all 0.2s;">
+                    📝 Edit Logs
+                </a>
+            </div>
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e5e5;">
+                <strong style="color: #1a1a1a; font-size: 13px; font-weight: 600;">Recipe:</strong>
+                <p style="margin: 0.5rem 0 0 0; color: #666; font-size: 14px;">{{ batch.recipe }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="padding: 3rem; text-align: center;">
+        <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;">📦</div>
+        <p style="color: #666; margin: 0 0 1rem 0; font-size: 15px;">No batches yet.</p>
+        <a href="{% url 'create_batch' %}" style="display: inline-block; padding: 0.625rem 1.25rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: all 0.2s;">
+            Create Your First Batch
+        </a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

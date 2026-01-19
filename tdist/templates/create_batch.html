@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Batch - TDist Logging{% endblock %}
+
+{% block content %}
+<h1>Create New Batch</h1>
+<p>Enter the recipe details for the new batch.</p>
+
+{% if messages %}
+<div style="margin: 1.5rem 0;">
+    {% for message in messages %}
+    <div style="padding: 1rem 1.25rem; background: {% if 'error' in message.tags %}#fef2f2{% else %}#f0fdf4{% endif %}; border: 1px solid {% if 'error' in message.tags %}#fecaca{% else %}#bbf7d0{% endif %}; border-radius: 8px; color: {% if 'error' in message.tags %}#991b1b{% else %}#166534{% endif %}; font-size: 14px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="post" style="margin-top: 2rem;">
+    {% csrf_token %}
+    
+    <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1a1a1a; font-size: 14px;">
+            Batch Number <span style="color: #ef4444;">*</span>
+        </label>
+        <p style="font-size: 13px; color: #666; margin-bottom: 0.5rem;">Enter the batch number</p>
+        <input 
+            type="number" 
+            name="batch_number" 
+            required
+            value="{{ suggested_number|default:'' }}{{ batch_number|default:'' }}"
+            style="width: 100%; padding: 0.625rem 1rem; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 14px; font-family: inherit;"
+            placeholder="e.g., 1"
+        >
+    </div>
+    
+    <div style="margin-bottom: 2rem;">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1a1a1a; font-size: 14px;">
+            Recipe Name <span style="color: #ef4444;">*</span>
+        </label>
+        <p style="font-size: 13px; color: #666; margin-bottom: 0.5rem;">Enter the recipe name for this batch</p>
+        <input 
+            type="text" 
+            name="recipe" 
+            required
+            value="{{ recipe|default:'' }}"
+            style="width: 100%; padding: 0.625rem 1rem; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 14px; font-family: inherit;"
+            placeholder="e.g., Wheat Whiskey"
+        >
+    </div>
+    
+    <div style="display: flex; gap: 1rem;">
+        <button 
+            type="submit" 
+            style="padding: 0.625rem 1.25rem; background: #1a1a1a; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;"
+        >
+            Create Batch
+        </button>
+        <a 
+            href="{% url 'index' %}" 
+            style="padding: 0.625rem 1.25rem; background: #f5f5f5; color: #666; border: 1px solid #e5e5e5; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block; transition: all 0.2s;"
+        >
+            Cancel
+        </a>
+    </div>
+</form>
+
+<style>
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+        outline: none;
+        border-color: #1a1a1a;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+    }
+</style>
+
+{% endblock %}
