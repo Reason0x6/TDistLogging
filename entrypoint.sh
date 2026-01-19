@@ -3,6 +3,9 @@
 # Exit on error
 set -e
 
+echo "Ensuring db directory exists..."
+mkdir -p /app/db
+
 echo "Running database migrations..."
 python manage.py migrate --noinput
 
