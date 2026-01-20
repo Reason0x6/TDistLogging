@@ -25,6 +25,9 @@ urlpatterns = [
     path('batch/<int:batch_id>/record/create/<str:section>/<int:index>/', views.create_record, name='create_record'),
     path('batch/<int:batch_id>/record/edit/<int:record_id>/', views.edit_record, name='edit_record'),
     path('batch/<int:batch_id>/export/', views.export_batch_csv, name='export_batch_csv'),
+    path('batch/<int:batch_id>/totals/<int:totals_record_id>/add-product/', views.add_product, name='add_product'),
+    path('batch/<int:batch_id>/product/edit/<int:product_id>/', views.edit_product, name='edit_product'),
+    path('batch/<int:batch_id>/product/delete/<int:product_id>/', views.delete_product, name='delete_product'),
     path('full-log/', views.full_log, name='full_log'),
     path('admin/', admin.site.urls),
 ]

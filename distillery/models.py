@@ -22,53 +22,20 @@ class Batch(models.Model):
     def get_default_structure(self):
         """Returns the default records structure for a batch"""
         return {
-            "Fermentor": [
-                {"description": "Fermentor", "record_id": None}
+            "Fermentation": [
+                {"description": "Fermentation", "record_id": None, "record_type": "fermentation"}
             ],
             "Wash": [
-                {"description": "Faints in", "record_id": None},
-                {"description": "Still in", "record_id": None},
-                {"description": "Fores out", "record_id": None},
-                {"description": "Heads out", "record_id": None},
-                {"description": "Harts out", "record_id": None},
-                {"description": "Tails out", "record_id": None},
-                {"description": "Low Wines out", "record_id": None},
-                {"description": "Waste out", "record_id": None}
+                {"description": "Wash Run", "record_id": None, "record_type": "distillation"}
             ],
             "Spirit 1": [
-                {"description": "Still in", "record_id": None},
-                {"description": "Water In", "record_id": None},
-                {"description": "Fores out", "record_id": None},
-                {"description": "Heads out", "record_id": None},
-                {"description": "Harts out", "record_id": None},
-                {"description": "Tails out", "record_id": None},
-                {"description": "High Wines out", "record_id": None},
-                {"description": "Waste out", "record_id": None},
-                {"description": "Filter", "record_id": None},
-                {"description": "Low profe Nutral", "record_id": None}
+                {"description": "Spirit Run 1", "record_id": None, "record_type": "distillation"}
             ],
             "Spirit 2": [
-                {"description": "Still in", "record_id": None},
-                {"description": "Water In", "record_id": None},
-                {"description": "Fores out", "record_id": None},
-                {"description": "Heads out", "record_id": None},
-                {"description": "Harts out", "record_id": None},
-                {"description": "Tails out", "record_id": None},
-                {"description": "High Wines out", "record_id": None},
-                {"description": "Waste out", "record_id": None},
-                {"description": "Filter", "record_id": None},
-                {"description": "Low profe Nutral", "record_id": None}
+                {"description": "Spirit Run 2", "record_id": None, "record_type": "distillation"}
             ],
-            "totals": [
-                {"description": "High Proof Product Bulk Storage", "record_id": None},
-                {"description": "Total Faints Storage", "record_id": None},
-                {"description": "Water In", "record_id": None},
-                {"description": "Total Low Proof Product A", "record_id": None},
-                {"description": "Total Low Proof Product B", "record_id": None},
-                {"description": "Carbon Filter", "record_id": None},
-                {"description": "Low Proof Product Bulk Store", "record_id": None},
-                {"description": "Waste/loss", "record_id": None},
-                {"description": "Faints Destroyed", "record_id": None}
+            "Totals": [
+                {"description": "Totals", "record_id": None, "record_type": "totals"}
             ]
         }
     
@@ -79,17 +46,16 @@ class Batch(models.Model):
         super().save(*args, **kwargs)
 
 
-class Record(models.Model):
-    """A record representing a row in the logging table"""
-    description = models.CharField(max_length=255, help_text="Description of the record")
-    from_field = models.CharField(max_length=100, verbose_name="From", help_text="Source location", blank=True, null=True)
+class FermentationRecord(models.Model):
+    """Record for fermentation stage"""
+    description = models.CharField(max_length=255, default="Fermentation", help_text="Description")
     to_field = models.CharField(max_length=100, verbose_name="To", help_text="Destination location", blank=True, null=True)
-    volume_in_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Volume in L", help_text="Volume in litres", blank=True, null=True)
+    volume_in_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Volume (L)", help_text="Volume in litres", blank=True, null=True)
     start_date = models.DateField(help_text="Start date", blank=True, null=True)
     sg_start = models.FloatField(verbose_name="SG Start", help_text="Starting specific gravity", blank=True, null=True)
-    date = models.DateField(help_text="End date", blank=True, null=True)
+    date = models.DateField(verbose_name="End Date", help_text="End date", blank=True, null=True)
     sg_end = models.FloatField(verbose_name="SG End", help_text="Ending specific gravity", blank=True, null=True)
-    abv = models.FloatField(verbose_name="ABV", help_text="Alcohol by volume (percent)", blank=True, null=True)
+    abv = models.FloatField(verbose_name="ABV (%)", help_text="Alcohol by volume (percent)", blank=True, null=True)
     lal = models.FloatField(verbose_name="LAL", help_text="Litres of Absolute Alcohol", blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -97,8 +63,75 @@ class Record(models.Model):
     
     class Meta:
         ordering = ['-date']
-        verbose_name = "Record"
-        verbose_name_plural = "Records"
+        verbose_name = "Fermentation Record"
+        verbose_name_plural = "Fermentation Records"
+    
+    def __str__(self):
+        return f"Fermentation ({self.date})"
+
+
+class DistillationRecord(models.Model):
+    """Record for wash/spirit distillation runs"""
+    description = models.CharField(max_length=255, help_text="Description of the run")
+    faints_in_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Faints in (L)", help_text="Faints input in litres", blank=True, null=True)
+    from_field = models.CharField(max_length=100, verbose_name="From", help_text="Source location", blank=True, null=True)
+    to_field = models.CharField(max_length=100, verbose_name="To", help_text="Destination location", blank=True, null=True)
+    volume_in_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Volume (L)", help_text="Volume in litres", blank=True, null=True)
+    start_date = models.DateField(help_text="Start date", blank=True, null=True)
+    date = models.DateField(verbose_name="End Date", help_text="End date", blank=True, null=True)
+    abv_harts = models.FloatField(verbose_name="ABV (Harts) %", help_text="ABV of hearts cut", blank=True, null=True)
+    lal = models.FloatField(verbose_name="LAL", help_text="Litres of Absolute Alcohol", blank=True, null=True)
+    fores_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Fores out (L)", help_text="Foreshots output", blank=True, null=True)
+    heads_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Heads out (L)", help_text="Heads output", blank=True, null=True)
+    harts_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Harts out (L)", help_text="Hearts output", blank=True, null=True)
+    tails_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tails out (L)", help_text="Tails output", blank=True, null=True)
+    waste_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Waste out (L)", help_text="Waste output", blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-date']
+        verbose_name = "Distillation Record"
+        verbose_name_plural = "Distillation Records"
     
     def __str__(self):
         return f"{self.description} ({self.date})"
+
+
+class TotalsRecord(models.Model):
+    """Record for batch totals"""
+    description = models.CharField(max_length=255, default="Totals", help_text="Description")
+    faints_to_storage_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Faints to Storage (L)", help_text="Faints stored in litres", blank=True, null=True)
+    faints_abv = models.FloatField(verbose_name="Faints ABV (%)", help_text="ABV of stored faints", blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Totals Record"
+        verbose_name_plural = "Totals Records"
+    
+    def __str__(self):
+        return f"Totals ({self.created_at.date()})"
+
+
+class ProductRecord(models.Model):
+    """Product record linked to a totals record"""
+    totals_record = models.ForeignKey(TotalsRecord, on_delete=models.CASCADE, related_name='products')
+    product_name = models.CharField(max_length=50, verbose_name="Product", help_text="Product identifier (A, B, C, etc.)")
+    final_abv = models.FloatField(verbose_name="Final ABV (%)", help_text="Final alcohol by volume", blank=True, null=True)
+    final_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Final L", help_text="Final litres", blank=True, null=True)
+    distillation_location = models.CharField(max_length=100, verbose_name="Distillation Location", help_text="Location of distillation", blank=True, null=True)
+    lal = models.FloatField(verbose_name="LAL", help_text="Litres of Absolute Alcohol", blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['product_name']
+        verbose_name = "Product Record"
+        verbose_name_plural = "Product Records"
+    
+    def __str__(self):
+        return f"Product {self.product_name}"

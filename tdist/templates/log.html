@@ -57,23 +57,84 @@
                         </div>
                         
                         {% if entry.record %}
-                        <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                <div><strong style="color: #666;">From:</strong> <span style="color: #1a1a1a;">{{ entry.record.from_field|default:"-" }}</span></div>
-                                <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ entry.record.to_field|default:"-" }}</span></div>
-                                <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.volume_in_l|default:"-" }}</span></div>
-                                <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.start_date|date:"Y-m-d"|default:"-" }}</span></div>
-                                <div><strong style="color: #666;">SG Start:</strong> <span style="color: #1a1a1a;">{{ entry.record.sg_start|default:"-" }}</span></div>
-                                <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.date|date:"Y-m-d"|default:"-" }}</span></div>
-                                <div><strong style="color: #666;">SG End:</strong> <span style="color: #1a1a1a;">{{ entry.record.sg_end|default:"-" }}</span></div>
-                                <div><strong style="color: #666;">ABV (%):</strong> <span style="color: #1a1a1a;">{{ entry.record.abv|default:"-" }}</span></div>
-                                <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ entry.record.lal|default:"-" }}</span></div>
+                            {# Fermentation Record #}
+                            {% if entry.record_type == 'fermentation' %}
+                            <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                    <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ entry.record.to_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.volume_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.start_date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">SG Start:</strong> <span style="color: #1a1a1a;">{{ entry.record.sg_start|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">SG End:</strong> <span style="color: #1a1a1a;">{{ entry.record.sg_end|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">ABV (%):</strong> <span style="color: #1a1a1a;">{{ entry.record.abv|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ entry.record.lal|default:"-" }}</span></div>
+                                </div>
                             </div>
-                        </div>
+                            
+                            {# Distillation Record #}
+                            {% elif entry.record_type == 'distillation' %}
+                            <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                    <div><strong style="color: #666;">Faints In (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.faints_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">From:</strong> <span style="color: #1a1a1a;">{{ entry.record.from_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ entry.record.to_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.volume_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.start_date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">ABV (Harts) %:</strong> <span style="color: #1a1a1a;">{{ entry.record.abv_harts|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ entry.record.lal|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Fores Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.fores_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Heads Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.heads_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Harts Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.harts_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Tails Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.tails_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Waste Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.waste_out|default:"-" }}</span></div>
+                                </div>
+                            </div>
+                            
+                            {# Totals Record #}
+                            {% elif entry.record_type == 'totals' %}
+                            <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                    <div><strong style="color: #666;">Faints to Storage (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.faints_to_storage_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Faints ABV (%):</strong> <span style="color: #1a1a1a;">{{ entry.record.faints_abv|default:"-" }}</span></div>
+                                </div>
+                            </div>
+                            
+                            {# Products for Totals #}
+                            {% if entry.record.products.exists %}
+                            <div style="margin-bottom: 0.75rem;">
+                                <strong style="color: #1a1a1a; font-size: 13px; display: block; margin-bottom: 0.5rem;">Products:</strong>
+                                <div style="display: grid; gap: 0.5rem;">
+                                    {% for product in entry.record.products.all %}
+                                    <div style="padding: 0.5rem 0.75rem; background: #f5f5f5; border-radius: 6px; font-size: 13px; border: 1px solid #e5e5e5;">
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; align-items: center;">
+                                            <div><strong style="color: #666;">Product:</strong> <span style="color: #1a1a1a;">{{ product.product_name }}</span></div>
+                                            <div><strong style="color: #666;">Final ABV (%):</strong> <span style="color: #1a1a1a;">{{ product.final_abv|default:"-" }}</span></div>
+                                            <div><strong style="color: #666;">Final L:</strong> <span style="color: #1a1a1a;">{{ product.final_l|default:"-" }}</span></div>
+                                            <div><strong style="color: #666;">Location:</strong> <span style="color: #1a1a1a;">{{ product.distillation_location|default:"-" }}</span></div>
+                                            <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ product.lal|default:"-" }}</span></div>
+                                            <div style="display: flex; gap: 0.25rem;">
+                                                <a href="{% url 'edit_product' batch.batch_number product.id %}" style="padding: 0.25rem 0.5rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 4px; font-size: 11px; font-weight: 500;">Edit</a>
+                                                <a href="{% url 'delete_product' batch.batch_number product.id %}" style="padding: 0.25rem 0.5rem; background: #dc2626; color: white; text-decoration: none; border-radius: 4px; font-size: 11px; font-weight: 500;">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                        
                         <div style="display: flex; gap: 0.5rem;">
                             <a href="{% url 'edit_record' batch.batch_number entry.record_id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
                                 ✏️ Edit Record
                             </a>
+                            {% if entry.record_type == 'totals' %}
+                            <a href="{% url 'add_product' batch.batch_number entry.record_id %}" style="padding: 0.5rem 1rem; background: #059669; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                ➕ Add Product
+                            </a>
+                            {% endif %}
                         </div>
                         {% else %}
                         <p style="margin: 0 0 0.75rem 0; color: #999; font-style: italic; font-size: 13px;">No record linked</p>
