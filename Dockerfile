@@ -21,5 +21,5 @@ RUN chmod +x /app/entrypoint.sh
 # Expose port 8000
 EXPOSE 8000
 
-# Run entrypoint script
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Run entrypoint script, keep container alive on failure
+CMD ["/bin/bash", "-c", "/app/entrypoint.sh || tail -f /dev/null"]

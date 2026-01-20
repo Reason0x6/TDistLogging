@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Exit on error
-set -e
-
 echo "Ensuring db directory exists..."
 mkdir -p /app/db
 
@@ -13,4 +10,4 @@ echo "Creating admin user..."
 python create_admin.py
 
 echo "Starting Django development server..."
-python manage.py runserver 0.0.0.0:8000
+exec python manage.py runserver 0.0.0.0:8000
