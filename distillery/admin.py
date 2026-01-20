@@ -25,79 +25,107 @@ def export_batches_to_csv(modeladmin, request, queryset):
         writer.writerow(['Updated:', batch.updated_at.strftime('%Y-%m-%d %H:%M')])
         writer.writerow([])
         
-        # Process each section
-        for section, entries in batch.records_data.items():
-            writer.writerow([f'--- {section} ---'])
+        # Export Fermentation
+        if batch.fermentation:
+            writer.writerow(['--- Fermentation ---'])
+            record = batch.fermentation
+            writer.writerow(['Field', 'Value'])
+            writer.writerow(['To', record.to_field or ''])
+            writer.writerow(['Volume (L)', record.volume_in_l or ''])
+            writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
+            writer.writerow(['SG Start', record.sg_start or ''])
+            writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
+            writer.writerow(['SG End', record.sg_end or ''])
+            writer.writerow(['ABV (%)', record.abv or ''])
+            writer.writerow(['LAL', record.lal or ''])
             writer.writerow([])
+        
+        # Export Wash
+        if batch.wash:
+            writer.writerow(['--- Wash ---'])
+            record = batch.wash
+            writer.writerow(['Field', 'Value'])
+            writer.writerow(['Description', record.description])
+            writer.writerow(['Faints In (L)', record.faints_in_l or ''])
+            writer.writerow(['From', record.from_field or ''])
+            writer.writerow(['To', record.to_field or ''])
+            writer.writerow(['Volume (L)', record.volume_in_l or ''])
+            writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
+            writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
+            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+            writer.writerow(['LAL', record.lal or ''])
+            writer.writerow(['Fores Out (L)', record.fores_out or ''])
+            writer.writerow(['Heads Out (L)', record.heads_out or ''])
+            writer.writerow(['Harts Out (L)', record.harts_out or ''])
+            writer.writerow(['Tails Out (L)', record.tails_out or ''])
+            writer.writerow(['Waste Out (L)', record.waste_out or ''])
+            writer.writerow([])
+        
+        # Export Spirit 1
+        if batch.spirit_1:
+            writer.writerow(['--- Spirit 1 ---'])
+            record = batch.spirit_1
+            writer.writerow(['Field', 'Value'])
+            writer.writerow(['Description', record.description])
+            writer.writerow(['Faints In (L)', record.faints_in_l or ''])
+            writer.writerow(['From', record.from_field or ''])
+            writer.writerow(['To', record.to_field or ''])
+            writer.writerow(['Volume (L)', record.volume_in_l or ''])
+            writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
+            writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
+            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+            writer.writerow(['LAL', record.lal or ''])
+            writer.writerow(['Fores Out (L)', record.fores_out or ''])
+            writer.writerow(['Heads Out (L)', record.heads_out or ''])
+            writer.writerow(['Harts Out (L)', record.harts_out or ''])
+            writer.writerow(['Tails Out (L)', record.tails_out or ''])
+            writer.writerow(['Waste Out (L)', record.waste_out or ''])
+            writer.writerow([])
+        
+        # Export Spirit 2
+        if batch.spirit_2:
+            writer.writerow(['--- Spirit 2 ---'])
+            record = batch.spirit_2
+            writer.writerow(['Field', 'Value'])
+            writer.writerow(['Description', record.description])
+            writer.writerow(['Faints In (L)', record.faints_in_l or ''])
+            writer.writerow(['From', record.from_field or ''])
+            writer.writerow(['To', record.to_field or ''])
+            writer.writerow(['Volume (L)', record.volume_in_l or ''])
+            writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
+            writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
+            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+            writer.writerow(['LAL', record.lal or ''])
+            writer.writerow(['Fores Out (L)', record.fores_out or ''])
+            writer.writerow(['Heads Out (L)', record.heads_out or ''])
+            writer.writerow(['Harts Out (L)', record.harts_out or ''])
+            writer.writerow(['Tails Out (L)', record.tails_out or ''])
+            writer.writerow(['Waste Out (L)', record.waste_out or ''])
+            writer.writerow([])
+        
+        # Export Totals
+        if batch.totals:
+            writer.writerow(['--- Totals ---'])
+            record = batch.totals
+            writer.writerow(['Field', 'Value'])
+            writer.writerow(['Faints to Storage (L)', record.faints_to_storage_l or ''])
+            writer.writerow(['Faints ABV (%)', record.faints_abv or ''])
             
-            for entry in entries:
-                record_id = entry.get('record_id')
-                record_type = entry.get('record_type', 'legacy')
-                
-                if record_id:
-                    try:
-                        if record_type == 'fermentation':
-                            record = FermentationRecord.objects.get(pk=record_id)
-                            writer.writerow(['Fermentation Record'])
-                            writer.writerow(['Field', 'Value'])
-                            writer.writerow(['Description', record.description])
-                            writer.writerow(['To', record.to_field or ''])
-                            writer.writerow(['Volume (L)', record.volume_in_l or ''])
-                            writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
-                            writer.writerow(['SG Start', record.sg_start or ''])
-                            writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
-                            writer.writerow(['SG End', record.sg_end or ''])
-                            writer.writerow(['ABV (%)', record.abv or ''])
-                            writer.writerow(['LAL', record.lal or ''])
-                            
-                        elif record_type == 'distillation':
-                            record = DistillationRecord.objects.get(pk=record_id)
-                            writer.writerow(['Distillation Record:', record.description])
-                            writer.writerow(['Field', 'Value'])
-                            writer.writerow(['Faints In (L)', record.faints_in_l or ''])
-                            writer.writerow(['From', record.from_field or ''])
-                            writer.writerow(['To', record.to_field or ''])
-                            writer.writerow(['Volume (L)', record.volume_in_l or ''])
-                            writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
-                            writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
-                            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
-                            writer.writerow(['LAL', record.lal or ''])
-                            writer.writerow(['Fores Out (L)', record.fores_out or ''])
-                            writer.writerow(['Heads Out (L)', record.heads_out or ''])
-                            writer.writerow(['Harts Out (L)', record.harts_out or ''])
-                            writer.writerow(['Tails Out (L)', record.tails_out or ''])
-                            writer.writerow(['Waste Out (L)', record.waste_out or ''])
-                            
-                        elif record_type == 'totals':
-                            record = TotalsRecord.objects.get(pk=record_id)
-                            writer.writerow(['Totals Record'])
-                            writer.writerow(['Field', 'Value'])
-                            writer.writerow(['Faints to Storage (L)', record.faints_to_storage_l or ''])
-                            writer.writerow(['Faints ABV (%)', record.faints_abv or ''])
-                            
-                            # Add products if any
-                            products = ProductRecord.objects.filter(totals_record=record)
-                            if products.exists():
-                                writer.writerow([])
-                                writer.writerow(['Products:'])
-                                writer.writerow(['Product', 'Final ABV (%)', 'Final L', 'Location', 'LAL'])
-                                for product in products:
-                                    writer.writerow([
-                                        product.product_name,
-                                        product.final_abv or '',
-                                        product.final_l or '',
-                                        product.distillation_location or '',
-                                        product.lal or ''
-                                    ])
-                    except (FermentationRecord.DoesNotExist, DistillationRecord.DoesNotExist, 
-                            TotalsRecord.DoesNotExist):
-                        writer.writerow([entry['description'], 'Record not found'])
-                else:
-                    writer.writerow([entry['description'], 'No data'])
-                
-                writer.writerow([])  # Empty row between entries
-            
-            writer.writerow([])  # Empty row between sections
+            # Add products if any
+            products = record.products.all()
+            if products.exists():
+                writer.writerow([])
+                writer.writerow(['Products:'])
+                writer.writerow(['Product', 'Final ABV (%)', 'Final L', 'Location', 'LAL'])
+                for product in products:
+                    writer.writerow([
+                        product.product_name,
+                        product.final_abv or '',
+                        product.final_l or '',
+                        product.distillation_location or '',
+                        product.lal or ''
+                    ])
+            writer.writerow([])
         
         writer.writerow([])  # Extra spacing between batches
     

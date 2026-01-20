@@ -1,51 +1,6 @@
 from django.db import models
 
 
-class Batch(models.Model):
-    """A batch with a sequential number and recipe"""
-    id = models.AutoField(primary_key=True)
-    batch_number = models.IntegerField(unique=True, verbose_name="Batch Number", help_text="Batch number")
-    recipe = models.CharField(max_length=255, verbose_name="Recipe", help_text="Recipe name")
-    records_data = models.JSONField(default=dict, verbose_name="Records Data", help_text="Dictionary of records for each stage")
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        ordering = ['batch_number']
-        verbose_name = "Batch"
-        verbose_name_plural = "Batches"
-    
-    def __str__(self):
-        return f"Batch #{self.batch_number}"
-    
-    def get_default_structure(self):
-        """Returns the default records structure for a batch"""
-        return {
-            "Fermentation": [
-                {"description": "Fermentation", "record_id": None, "record_type": "fermentation"}
-            ],
-            "Wash": [
-                {"description": "Wash Run", "record_id": None, "record_type": "distillation"}
-            ],
-            "Spirit 1": [
-                {"description": "Spirit Run 1", "record_id": None, "record_type": "distillation"}
-            ],
-            "Spirit 2": [
-                {"description": "Spirit Run 2", "record_id": None, "record_type": "distillation"}
-            ],
-            "Totals": [
-                {"description": "Totals", "record_id": None, "record_type": "totals"}
-            ]
-        }
-    
-    def save(self, *args, **kwargs):
-        """Initialize records_data with default structure if empty"""
-        if not self.records_data:
-            self.records_data = self.get_default_structure()
-        super().save(*args, **kwargs)
-
-
 class FermentationRecord(models.Model):
     """Record for fermentation stage"""
     description = models.CharField(max_length=255, default="Fermentation", help_text="Description")
@@ -135,3 +90,28 @@ class ProductRecord(models.Model):
     
     def __str__(self):
         return f"Product {self.product_name}"
+
+
+class Batch(models.Model):
+    """A batch with a sequential number and recipe"""
+    id = models.AutoField(primary_key=True)
+    batch_number = models.IntegerField(unique=True, verbose_name="Batch Number", help_text="Batch number")
+    recipe = models.CharField(max_length=255, verbose_name="Recipe", help_text="Recipe name")
+    
+    # 1:1 Relationships to records
+    fermentation = models.OneToOneField(FermentationRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch')
+    wash = models.OneToOneField(DistillationRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch_wash')
+    spirit_1 = models.OneToOneField(DistillationRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch_spirit1')
+    spirit_2 = models.OneToOneField(DistillationRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch_spirit2')
+    totals = models.OneToOneField(TotalsRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['batch_number']
+        verbose_name = "Batch"
+        verbose_name_plural = "Batches"
+    
+    def __str__(self):
+        return f"Batch #{self.batch_number}"

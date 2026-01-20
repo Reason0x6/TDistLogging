@@ -42,71 +42,224 @@
     </div>
     
     <div style="padding: 1.5rem;">
-        {% for key, entries in records_data.items %}
-        <details style="margin-bottom: 1rem; border: 1px solid #e5e5e5; border-radius: 10px;" {% if forloop.first %}open{% endif %}>
+        {# Fermentation Section #}
+        <details style="margin-bottom: 1rem; border: 1px solid #e5e5e5; border-radius: 10px;" open>
             <summary style="padding: 1rem 1.25rem; background: #fafafa; cursor: pointer; font-weight: 600; font-size: 15px; color: #1a1a1a; border-radius: 10px;">
-                {{ key }} ({{ entries|length }} record{{ entries|length|pluralize }})
+                Fermentation {% if batch.fermentation %}(1 record){% else %}(0 records){% endif %}
             </summary>
             
             <div style="padding: 1.5rem;">
                 <div style="display: grid; gap: 1rem;">
-                    {% for entry in entries %}
                     <div style="padding: 1rem 1.25rem; border: 1px solid #e5e5e5; border-radius: 8px; background: white;">
                         <div style="margin-bottom: 0.5rem;">
-                            <strong style="color: #1a1a1a; font-size: 14px; font-weight: 600;">{{ entry.description }}</strong>
+                            <strong style="color: #1a1a1a; font-size: 14px; font-weight: 600;">Fermentation</strong>
                         </div>
                         
-                        {% if entry.record %}
-                            {# Fermentation Record #}
-                            {% if entry.record_type == 'fermentation' %}
+                        {% if batch.fermentation %}
                             <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                    <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ entry.record.to_field|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.volume_in_l|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.start_date|date:"Y-m-d"|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">SG Start:</strong> <span style="color: #1a1a1a;">{{ entry.record.sg_start|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.date|date:"Y-m-d"|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">SG End:</strong> <span style="color: #1a1a1a;">{{ entry.record.sg_end|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">ABV (%):</strong> <span style="color: #1a1a1a;">{{ entry.record.abv|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ entry.record.lal|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ batch.fermentation.to_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ batch.fermentation.volume_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ batch.fermentation.start_date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">SG Start:</strong> <span style="color: #1a1a1a;">{{ batch.fermentation.sg_start|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ batch.fermentation.date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">SG End:</strong> <span style="color: #1a1a1a;">{{ batch.fermentation.sg_end|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">ABV (%):</strong> <span style="color: #1a1a1a;">{{ batch.fermentation.abv|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ batch.fermentation.lal|default:"-" }}</span></div>
                                 </div>
                             </div>
-                            
-                            {# Distillation Record #}
-                            {% elif entry.record_type == 'distillation' %}
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'edit_record' batch.batch_number batch.fermentation.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ✏️ Edit Record
+                                </a>
+                            </div>
+                        {% else %}
+                            <p style="margin: 0 0 0.75rem 0; color: #999; font-style: italic; font-size: 13px;">No record linked</p>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'create_record' batch.batch_number 'Fermentation' 0 %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ➕ Create Record
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        {# Wash Section #}
+        <details style="margin-bottom: 1rem; border: 1px solid #e5e5e5; border-radius: 10px;">
+            <summary style="padding: 1rem 1.25rem; background: #fafafa; cursor: pointer; font-weight: 600; font-size: 15px; color: #1a1a1a; border-radius: 10px;">
+                Wash {% if batch.wash %}(1 record){% else %}(0 records){% endif %}
+            </summary>
+            
+            <div style="padding: 1.5rem;">
+                <div style="display: grid; gap: 1rem;">
+                    <div style="padding: 1rem 1.25rem; border: 1px solid #e5e5e5; border-radius: 8px; background: white;">
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #1a1a1a; font-size: 14px; font-weight: 600;">Wash</strong>
+                        </div>
+                        
+                        {% if batch.wash %}
                             <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                    <div><strong style="color: #666;">Faints In (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.faints_in_l|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">From:</strong> <span style="color: #1a1a1a;">{{ entry.record.from_field|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ entry.record.to_field|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.volume_in_l|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.start_date|date:"Y-m-d"|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ entry.record.date|date:"Y-m-d"|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">ABV (Harts) %:</strong> <span style="color: #1a1a1a;">{{ entry.record.abv_harts|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ entry.record.lal|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Fores Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.fores_out|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Heads Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.heads_out|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Harts Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.harts_out|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Tails Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.tails_out|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Waste Out (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.waste_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Faints In (L):</strong> <span style="color: #1a1a1a;">{{ batch.wash.faints_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">From:</strong> <span style="color: #1a1a1a;">{{ batch.wash.from_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ batch.wash.to_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ batch.wash.volume_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ batch.wash.start_date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ batch.wash.date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">ABV (Harts) %:</strong> <span style="color: #1a1a1a;">{{ batch.wash.abv_harts|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ batch.wash.lal|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Fores Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.wash.fores_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Heads Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.wash.heads_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Harts Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.wash.harts_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Tails Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.wash.tails_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Waste Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.wash.waste_out|default:"-" }}</span></div>
                                 </div>
                             </div>
-                            
-                            {# Totals Record #}
-                            {% elif entry.record_type == 'totals' %}
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'edit_record' batch.batch_number batch.wash.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ✏️ Edit Record
+                                </a>
+                            </div>
+                        {% else %}
+                            <p style="margin: 0 0 0.75rem 0; color: #999; font-style: italic; font-size: 13px;">No record linked</p>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'create_record' batch.batch_number 'Wash' 0 %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ➕ Create Record
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        {# Spirit 1 Section #}
+        <details style="margin-bottom: 1rem; border: 1px solid #e5e5e5; border-radius: 10px;">
+            <summary style="padding: 1rem 1.25rem; background: #fafafa; cursor: pointer; font-weight: 600; font-size: 15px; color: #1a1a1a; border-radius: 10px;">
+                Spirit 1 {% if batch.spirit_1 %}(1 record){% else %}(0 records){% endif %}
+            </summary>
+            
+            <div style="padding: 1.5rem;">
+                <div style="display: grid; gap: 1rem;">
+                    <div style="padding: 1rem 1.25rem; border: 1px solid #e5e5e5; border-radius: 8px; background: white;">
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #1a1a1a; font-size: 14px; font-weight: 600;">Spirit 1</strong>
+                        </div>
+                        
+                        {% if batch.spirit_1 %}
                             <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                    <div><strong style="color: #666;">Faints to Storage (L):</strong> <span style="color: #1a1a1a;">{{ entry.record.faints_to_storage_l|default:"-" }}</span></div>
-                                    <div><strong style="color: #666;">Faints ABV (%):</strong> <span style="color: #1a1a1a;">{{ entry.record.faints_abv|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Faints In (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.faints_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">From:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.from_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.to_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.volume_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.start_date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">ABV (Harts) %:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.abv_harts|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.lal|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Fores Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.fores_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Heads Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.heads_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Harts Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.harts_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Tails Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.tails_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Waste Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_1.waste_out|default:"-" }}</span></div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'edit_record' batch.batch_number batch.spirit_1.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ✏️ Edit Record
+                                </a>
+                            </div>
+                        {% else %}
+                            <p style="margin: 0 0 0.75rem 0; color: #999; font-style: italic; font-size: 13px;">No record linked</p>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'create_record' batch.batch_number 'Spirit 1' 0 %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ➕ Create Record
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        {# Spirit 2 Section #}
+        <details style="margin-bottom: 1rem; border: 1px solid #e5e5e5; border-radius: 10px;">
+            <summary style="padding: 1rem 1.25rem; background: #fafafa; cursor: pointer; font-weight: 600; font-size: 15px; color: #1a1a1a; border-radius: 10px;">
+                Spirit 2 {% if batch.spirit_2 %}(1 record){% else %}(0 records){% endif %}
+            </summary>
+            
+            <div style="padding: 1.5rem;">
+                <div style="display: grid; gap: 1rem;">
+                    <div style="padding: 1rem 1.25rem; border: 1px solid #e5e5e5; border-radius: 8px; background: white;">
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #1a1a1a; font-size: 14px; font-weight: 600;">Spirit 2</strong>
+                        </div>
+                        
+                        {% if batch.spirit_2 %}
+                            <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                    <div><strong style="color: #666;">Faints In (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.faints_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">From:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.from_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">To:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.to_field|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Volume (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.volume_in_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Start Date:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.start_date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">End Date:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.date|date:"Y-m-d"|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">ABV (Harts) %:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.abv_harts|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">LAL:</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.lal|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Fores Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.fores_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Heads Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.heads_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Harts Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.harts_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Tails Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.tails_out|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Waste Out (L):</strong> <span style="color: #1a1a1a;">{{ batch.spirit_2.waste_out|default:"-" }}</span></div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'edit_record' batch.batch_number batch.spirit_2.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ✏️ Edit Record
+                                </a>
+                            </div>
+                        {% else %}
+                            <p style="margin: 0 0 0.75rem 0; color: #999; font-style: italic; font-size: 13px;">No record linked</p>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'create_record' batch.batch_number 'Spirit 2' 0 %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ➕ Create Record
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        {# Totals Section #}
+        <details style="margin-bottom: 1rem; border: 1px solid #e5e5e5; border-radius: 10px;">
+            <summary style="padding: 1rem 1.25rem; background: #fafafa; cursor: pointer; font-weight: 600; font-size: 15px; color: #1a1a1a; border-radius: 10px;">
+                Totals {% if batch.totals %}(1 record){% else %}(0 records){% endif %}
+            </summary>
+            
+            <div style="padding: 1.5rem;">
+                <div style="display: grid; gap: 1rem;">
+                    <div style="padding: 1rem 1.25rem; border: 1px solid #e5e5e5; border-radius: 8px; background: white;">
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #1a1a1a; font-size: 14px; font-weight: 600;">Totals</strong>
+                        </div>
+                        
+                        {% if batch.totals %}
+                            <div style="padding: 0.75rem 1rem; background: #fafafa; border-radius: 6px; font-size: 13px; margin-bottom: 0.75rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                    <div><strong style="color: #666;">Faints to Storage (L):</strong> <span style="color: #1a1a1a;">{{ batch.totals.faints_to_storage_l|default:"-" }}</span></div>
+                                    <div><strong style="color: #666;">Faints ABV (%):</strong> <span style="color: #1a1a1a;">{{ batch.totals.faints_abv|default:"-" }}</span></div>
                                 </div>
                             </div>
                             
                             {# Products for Totals #}
-                            {% if entry.record.products.exists %}
+                            {% if batch.totals.products.exists %}
                             <div style="margin-bottom: 0.75rem;">
                                 <strong style="color: #1a1a1a; font-size: 13px; display: block; margin-bottom: 0.5rem;">Products:</strong>
                                 <div style="display: grid; gap: 0.5rem;">
-                                    {% for product in entry.record.products.all %}
+                                    {% for product in batch.totals.products.all %}
                                     <div style="padding: 0.5rem 0.75rem; background: #f5f5f5; border-radius: 6px; font-size: 13px; border: 1px solid #e5e5e5;">
                                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; align-items: center;">
                                             <div><strong style="color: #666;">Product:</strong> <span style="color: #1a1a1a;">{{ product.product_name }}</span></div>
@@ -124,32 +277,27 @@
                                 </div>
                             </div>
                             {% endif %}
-                            {% endif %}
-                        
-                        <div style="display: flex; gap: 0.5rem;">
-                            <a href="{% url 'edit_record' batch.batch_number entry.record_id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
-                                ✏️ Edit Record
-                            </a>
-                            {% if entry.record_type == 'totals' %}
-                            <a href="{% url 'add_product' batch.batch_number entry.record_id %}" style="padding: 0.5rem 1rem; background: #059669; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
-                                ➕ Add Product
-                            </a>
-                            {% endif %}
-                        </div>
+                            
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'edit_record' batch.batch_number batch.totals.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ✏️ Edit Record
+                                </a>
+                                <a href="{% url 'add_product' batch.batch_number batch.totals.id %}" style="padding: 0.5rem 1rem; background: #059669; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ➕ Add Product
+                                </a>
+                            </div>
                         {% else %}
-                        <p style="margin: 0 0 0.75rem 0; color: #999; font-style: italic; font-size: 13px;">No record linked</p>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <a href="{% url 'create_record' batch.batch_number entry.section entry.index %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
-                                ➕ Create Record
-                            </a>
-                        </div>
+                            <p style="margin: 0 0 0.75rem 0; color: #999; font-style: italic; font-size: 13px;">No record linked</p>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'create_record' batch.batch_number 'Totals' 0 %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                    ➕ Create Record
+                                </a>
+                            </div>
                         {% endif %}
                     </div>
-                    {% endfor %}
                 </div>
             </div>
         </details>
-        {% endfor %}
     </div>
 </div>
 

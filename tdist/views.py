@@ -93,40 +93,8 @@ def log(request, batch_id):
     """Log page view for editing batch records."""
     batch = get_object_or_404(Batch, batch_number=batch_id)
     
-    # Get actual Record objects for each entry
-    records_with_data = {}
-    for key, entries in batch.records_data.items():
-        records_with_data[key] = []
-        for idx, entry in enumerate(entries):
-            record = None
-            record_type = entry.get('record_type', 'legacy')
-            
-            if entry.get('record_id'):
-                try:
-                    if record_type == 'fermentation':
-                        record = FermentationRecord.objects.get(pk=entry['record_id'])
-                    elif record_type == 'distillation':
-                        record = DistillationRecord.objects.get(pk=entry['record_id'])
-                    elif record_type == 'totals':
-                        record = TotalsRecord.objects.get(pk=entry['record_id'])
-                    else:
-                        record = Record.objects.get(pk=entry['record_id'])
-                except (FermentationRecord.DoesNotExist, DistillationRecord.DoesNotExist, 
-                        TotalsRecord.DoesNotExist):
-                    pass
-            
-            records_with_data[key].append({
-                'description': entry['description'],
-                'record_id': entry.get('record_id'),
-                'record': record,
-                'record_type': record_type,
-                'section': key,
-                'index': idx
-            })
-    
     return render(request, 'log.html', {
-        'batch': batch,
-        'records_data': records_with_data
+        'batch': batch
     })
 
 def create_batch(request):
@@ -168,31 +136,36 @@ def create_record(request, batch_id, section, index):
     """Create a new record and link it to a batch."""
     batch = get_object_or_404(Batch, batch_number=batch_id)
     
-    # Get the expected description and record type from batch structure
-    entry = batch.records_data.get(section, [])[int(index)] if int(index) < len(batch.records_data.get(section, [])) else {}
-    expected_description = entry.get('description', '')
-    record_type = entry.get('record_type', 'legacy')
+    # Map section to record type and field name
+    section_map = {
+        'Fermentation': ('fermentation', FermentationRecordForm, 'Fermentation'),
+        'Wash': ('distillation', DistillationRecordForm, 'Wash Run'),
+        'Spirit 1': ('distillation', DistillationRecordForm, 'Spirit Run 1'),
+        'Spirit 2': ('distillation', DistillationRecordForm, 'Spirit Run 2'),
+        'Totals': ('totals', TotalsRecordForm, 'Totals')
+    }
     
-    # Determine which form to use based on section/record type
-    if record_type == 'fermentation':
-        FormClass = FermentationRecordForm
-        ModelClass = FermentationRecord
-    elif record_type == 'distillation':
-        FormClass = DistillationRecordForm
-        ModelClass = DistillationRecord
-    elif record_type == 'totals':
-        FormClass = TotalsRecordForm
-        ModelClass = TotalsRecord
-    else:
-        messages.error(request, 'Unknown record type.')
+    if section not in section_map:
+        messages.error(request, 'Invalid section.')
         return redirect('log', batch_id=batch.batch_number)
+    
+    record_type, FormClass, expected_description = section_map[section]
     
     if request.method == 'POST':
         form = FormClass(request.POST)
         if form.is_valid():
             record = form.save()
-            # Link record to batch
-            batch.records_data[section][int(index)]['record_id'] = record.id
+            # Link record to batch using the appropriate field
+            if section == 'Fermentation':
+                batch.fermentation = record
+            elif section == 'Wash':
+                batch.wash = record
+            elif section == 'Spirit 1':
+                batch.spirit_1 = record
+            elif section == 'Spirit 2':
+                batch.spirit_2 = record
+            elif section == 'Totals':
+                batch.totals = record
             batch.save()
             messages.success(request, f'Record created and linked to Batch #{batch.batch_number}!')
             return redirect('log', batch_id=batch.batch_number)
@@ -222,30 +195,33 @@ def edit_record(request, batch_id, record_id):
     """Edit an existing record."""
     batch = get_object_or_404(Batch, batch_number=batch_id)
     
-    # Find the record type from batch records_data
-    record_type = 'legacy'
+    # Determine record type by checking batch relationships
     record = None
+    record_type = None
+    FormClass = None
     
-    for section, entries in batch.records_data.items():
-        for entry in entries:
-            if entry.get('record_id') == record_id:
-                record_type = entry.get('record_type', 'legacy')
-                break
-        if record_type != 'legacy':
-            break
-    
-    # Get the appropriate form and model
-    if record_type == 'fermentation':
+    if batch.fermentation and batch.fermentation.id == record_id:
+        record = batch.fermentation
+        record_type = 'fermentation'
         FormClass = FermentationRecordForm
-        record = get_object_or_404(FermentationRecord, pk=record_id)
-    elif record_type == 'distillation':
+    elif batch.wash and batch.wash.id == record_id:
+        record = batch.wash
+        record_type = 'distillation'
         FormClass = DistillationRecordForm
-        record = get_object_or_404(DistillationRecord, pk=record_id)
-    elif record_type == 'totals':
+    elif batch.spirit_1 and batch.spirit_1.id == record_id:
+        record = batch.spirit_1
+        record_type = 'distillation'
+        FormClass = DistillationRecordForm
+    elif batch.spirit_2 and batch.spirit_2.id == record_id:
+        record = batch.spirit_2
+        record_type = 'distillation'
+        FormClass = DistillationRecordForm
+    elif batch.totals and batch.totals.id == record_id:
+        record = batch.totals
+        record_type = 'totals'
         FormClass = TotalsRecordForm
-        record = get_object_or_404(TotalsRecord, pk=record_id)
     else:
-        messages.error(request, 'Unknown record type.')
+        messages.error(request, 'Record not found or not linked to this batch.')
         return redirect('log', batch_id=batch.batch_number)
     
     if request.method == 'POST':
@@ -283,79 +259,107 @@ def export_batch_csv(request, batch_id):
     writer.writerow(['Updated', batch.updated_at.strftime('%Y-%m-%d %H:%M')])
     writer.writerow([])  # Empty row for separation
     
-    # Write records for each section
-    for section, entries in batch.records_data.items():
-        writer.writerow([f'=== {section} ==='])
+    # Export Fermentation
+    if batch.fermentation:
+        writer.writerow(['=== Fermentation ==='])
+        record = batch.fermentation
+        writer.writerow(['Field', 'Value'])
+        writer.writerow(['To', record.to_field or ''])
+        writer.writerow(['Volume (L)', record.volume_in_l or ''])
+        writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
+        writer.writerow(['SG Start', record.sg_start or ''])
+        writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
+        writer.writerow(['SG End', record.sg_end or ''])
+        writer.writerow(['ABV (%)', record.abv or ''])
+        writer.writerow(['LAL', record.lal or ''])
+        writer.writerow([])
+    
+    # Export Wash
+    if batch.wash:
+        writer.writerow(['=== Wash ==='])
+        record = batch.wash
+        writer.writerow(['Field', 'Value'])
+        writer.writerow(['Description', record.description])
+        writer.writerow(['Faints In (L)', record.faints_in_l or ''])
+        writer.writerow(['From', record.from_field or ''])
+        writer.writerow(['To', record.to_field or ''])
+        writer.writerow(['Volume (L)', record.volume_in_l or ''])
+        writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
+        writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
+        writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+        writer.writerow(['LAL', record.lal or ''])
+        writer.writerow(['Fores Out (L)', record.fores_out or ''])
+        writer.writerow(['Heads Out (L)', record.heads_out or ''])
+        writer.writerow(['Harts Out (L)', record.harts_out or ''])
+        writer.writerow(['Tails Out (L)', record.tails_out or ''])
+        writer.writerow(['Waste Out (L)', record.waste_out or ''])
+        writer.writerow([])
+    
+    # Export Spirit 1
+    if batch.spirit_1:
+        writer.writerow(['=== Spirit 1 ==='])
+        record = batch.spirit_1
+        writer.writerow(['Field', 'Value'])
+        writer.writerow(['Description', record.description])
+        writer.writerow(['Faints In (L)', record.faints_in_l or ''])
+        writer.writerow(['From', record.from_field or ''])
+        writer.writerow(['To', record.to_field or ''])
+        writer.writerow(['Volume (L)', record.volume_in_l or ''])
+        writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
+        writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
+        writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+        writer.writerow(['LAL', record.lal or ''])
+        writer.writerow(['Fores Out (L)', record.fores_out or ''])
+        writer.writerow(['Heads Out (L)', record.heads_out or ''])
+        writer.writerow(['Harts Out (L)', record.harts_out or ''])
+        writer.writerow(['Tails Out (L)', record.tails_out or ''])
+        writer.writerow(['Waste Out (L)', record.waste_out or ''])
+        writer.writerow([])
+    
+    # Export Spirit 2
+    if batch.spirit_2:
+        writer.writerow(['=== Spirit 2 ==='])
+        record = batch.spirit_2
+        writer.writerow(['Field', 'Value'])
+        writer.writerow(['Description', record.description])
+        writer.writerow(['Faints In (L)', record.faints_in_l or ''])
+        writer.writerow(['From', record.from_field or ''])
+        writer.writerow(['To', record.to_field or ''])
+        writer.writerow(['Volume (L)', record.volume_in_l or ''])
+        writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
+        writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
+        writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+        writer.writerow(['LAL', record.lal or ''])
+        writer.writerow(['Fores Out (L)', record.fores_out or ''])
+        writer.writerow(['Heads Out (L)', record.heads_out or ''])
+        writer.writerow(['Harts Out (L)', record.harts_out or ''])
+        writer.writerow(['Tails Out (L)', record.tails_out or ''])
+        writer.writerow(['Waste Out (L)', record.waste_out or ''])
+        writer.writerow([])
+    
+    # Export Totals
+    if batch.totals:
+        writer.writerow(['=== Totals ==='])
+        record = batch.totals
+        writer.writerow(['Field', 'Value'])
+        writer.writerow(['Faints to Storage (L)', record.faints_to_storage_l or ''])
+        writer.writerow(['Faints ABV (%)', record.faints_abv or ''])
         
-        for entry in entries:
-            record_id = entry.get('record_id')
-            record_type = entry.get('record_type', 'legacy')
-            
-            if record_id:
-                try:
-                    if record_type == 'fermentation':
-                        record = FermentationRecord.objects.get(pk=record_id)
-                        writer.writerow(['Fermentation Record'])
-                        writer.writerow(['To', 'Volume (L)', 'Start Date', 'SG Start', 'End Date', 'SG End', 'ABV (%)', 'LAL'])
-                        writer.writerow([
-                            record.to_field or '',
-                            record.volume_in_l or '',
-                            record.start_date.strftime('%Y-%m-%d') if record.start_date else '',
-                            record.sg_start or '',
-                            record.date.strftime('%Y-%m-%d') if record.date else '',
-                            record.sg_end or '',
-                            record.abv or '',
-                            record.lal or ''
-                        ])
-                    elif record_type == 'distillation':
-                        record = DistillationRecord.objects.get(pk=record_id)
-                        writer.writerow(['Distillation Record:', record.description])
-                        writer.writerow(['Faints In (L)', 'From', 'To', 'Volume (L)', 'Start Date', 'End Date', 'ABV (Harts)', 'LAL', 'Fores Out', 'Heads Out', 'Harts Out', 'Tails Out', 'Waste Out'])
-                        writer.writerow([
-                            record.faints_in_l or '',
-                            record.from_field or '',
-                            record.to_field or '',
-                            record.volume_in_l or '',
-                            record.start_date.strftime('%Y-%m-%d') if record.start_date else '',
-                            record.date.strftime('%Y-%m-%d') if record.date else '',
-                            record.abv_harts or '',
-                            record.lal or '',
-                            record.fores_out or '',
-                            record.heads_out or '',
-                            record.harts_out or '',
-                            record.tails_out or '',
-                            record.waste_out or ''
-                        ])
-                    elif record_type == 'totals':
-                        record = TotalsRecord.objects.get(pk=record_id)
-                        writer.writerow(['Totals Record'])
-                        writer.writerow(['Faints to Storage (L)', 'Faints ABV (%)'])
-                        writer.writerow([
-                            record.faints_to_storage_l or '',
-                            record.faints_abv or ''
-                        ])
-                        
-                        # Add products if any
-                        products = ProductRecord.objects.filter(totals_record=record)
-                        if products.exists():
-                            writer.writerow([])
-                            writer.writerow(['Products'])
-                            writer.writerow(['Product', 'Final ABV (%)', 'Final L', 'Distillation Location', 'LAL'])
-                            for product in products:
-                                writer.writerow([
-                                    product.product_name,
-                                    product.final_abv or '',
-                                    product.final_l or '',
-                                    product.distillation_location or '',
-                                    product.lal or ''
-                                ])
-                except (FermentationRecord.DoesNotExist, DistillationRecord.DoesNotExist, 
-                        TotalsRecord.DoesNotExist):
-                    writer.writerow([entry['description'], 'Record not found'])
-            else:
-                writer.writerow([entry['description'], 'No data'])
-        
-        writer.writerow([])  # Empty row between sections
+        # Add products if any
+        products = record.products.all()
+        if products.exists():
+            writer.writerow([])
+            writer.writerow(['Products:'])
+            writer.writerow(['Product', 'Final ABV (%)', 'Final L', 'Location', 'LAL'])
+            for product in products:
+                writer.writerow([
+                    product.product_name,
+                    product.final_abv or '',
+                    product.final_l or '',
+                    product.distillation_location or '',
+                    product.lal or ''
+                ])
+        writer.writerow([])
     
     return response
 
