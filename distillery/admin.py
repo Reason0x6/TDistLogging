@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Batch, FermentationRecord, DistillationRecord, TotalsRecord, ProductRecord
+from .models import Batch, FermentationRecord, WashRecord, DistillationRecord, TotalsRecord, ProductRecord
 import csv
 
 
@@ -52,13 +52,14 @@ def export_batches_to_csv(modeladmin, request, queryset):
             writer.writerow(['Volume (L)', record.volume_in_l or ''])
             writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
             writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
-            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
-            writer.writerow(['LAL', record.lal or ''])
             writer.writerow(['Fores Out (L)', record.fores_out or ''])
             writer.writerow(['Heads Out (L)', record.heads_out or ''])
             writer.writerow(['Harts Out (L)', record.harts_out or ''])
+            writer.writerow(['Hearts Out Location', record.harts_out_location or ''])
             writer.writerow(['Tails Out (L)', record.tails_out or ''])
             writer.writerow(['Waste Out (L)', record.waste_out or ''])
+            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+            writer.writerow(['LAL', record.lal or ''])
             writer.writerow([])
         
         # Export Spirit 1
@@ -73,13 +74,15 @@ def export_batches_to_csv(modeladmin, request, queryset):
             writer.writerow(['Volume (L)', record.volume_in_l or ''])
             writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
             writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
-            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
-            writer.writerow(['LAL', record.lal or ''])
             writer.writerow(['Fores Out (L)', record.fores_out or ''])
             writer.writerow(['Heads Out (L)', record.heads_out or ''])
             writer.writerow(['Harts Out (L)', record.harts_out or ''])
+            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+            writer.writerow(['Hearts Out Location', record.harts_out_location or ''])
             writer.writerow(['Tails Out (L)', record.tails_out or ''])
+            writer.writerow(['Faints Out Location', record.faints_out_location or ''])
             writer.writerow(['Waste Out (L)', record.waste_out or ''])
+            writer.writerow(['LAL', record.lal or ''])
             writer.writerow([])
         
         # Export Spirit 2
@@ -94,13 +97,15 @@ def export_batches_to_csv(modeladmin, request, queryset):
             writer.writerow(['Volume (L)', record.volume_in_l or ''])
             writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
             writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
-            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
-            writer.writerow(['LAL', record.lal or ''])
             writer.writerow(['Fores Out (L)', record.fores_out or ''])
             writer.writerow(['Heads Out (L)', record.heads_out or ''])
             writer.writerow(['Harts Out (L)', record.harts_out or ''])
+            writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+            writer.writerow(['Hearts Out Location', record.harts_out_location or ''])
             writer.writerow(['Tails Out (L)', record.tails_out or ''])
+            writer.writerow(['Faints Out Location', record.faints_out_location or ''])
             writer.writerow(['Waste Out (L)', record.waste_out or ''])
+            writer.writerow(['LAL', record.lal or ''])
             writer.writerow([])
         
         # Export Totals
@@ -108,6 +113,8 @@ def export_batches_to_csv(modeladmin, request, queryset):
             writer.writerow(['--- Totals ---'])
             record = batch.totals
             writer.writerow(['Field', 'Value'])
+            writer.writerow(['Hearts to Storage Location', record.harts_to_storage_location or ''])
+            writer.writerow(['Hearts ABV (%)', record.harts_abv or ''])
             writer.writerow(['Faints to Storage (L)', record.faints_to_storage_l or ''])
             writer.writerow(['Faints ABV (%)', record.faints_abv or ''])
             
@@ -142,6 +149,14 @@ class FermentationRecordAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
 
 
+@admin.register(WashRecord)
+class WashRecordAdmin(admin.ModelAdmin):
+    list_display = ('description', 'from_field', 'to_field', 'volume_in_l', 'start_date', 'date', 'abv_harts', 'lal')
+    list_filter = ('start_date', 'date')
+    search_fields = ('description', 'from_field', 'to_field')
+    date_hierarchy = 'date'
+
+
 @admin.register(DistillationRecord)
 class DistillationRecordAdmin(admin.ModelAdmin):
     list_display = ('description', 'from_field', 'to_field', 'volume_in_l', 'start_date', 'date', 'abv_harts', 'lal')
@@ -152,7 +167,7 @@ class DistillationRecordAdmin(admin.ModelAdmin):
 
 @admin.register(TotalsRecord)
 class TotalsRecordAdmin(admin.ModelAdmin):
-    list_display = ('description', 'faints_to_storage_l', 'faints_abv', 'created_at')
+    list_display = ('description', 'harts_to_storage_location', 'harts_abv', 'faints_to_storage_l', 'faints_abv', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('description',)
     date_hierarchy = 'created_at'

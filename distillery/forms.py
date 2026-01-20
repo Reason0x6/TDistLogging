@@ -1,5 +1,5 @@
 from django import forms
-from .models import FermentationRecord, DistillationRecord, TotalsRecord, ProductRecord
+from .models import FermentationRecord, WashRecord, DistillationRecord, TotalsRecord, ProductRecord
 
 
 class FermentationRecordForm(forms.ModelForm):
@@ -20,14 +20,15 @@ class FermentationRecordForm(forms.ModelForm):
         }
 
 
-class DistillationRecordForm(forms.ModelForm):
-    """Form for distillation records (Wash, Spirit 1, Spirit 2)"""
+class WashRecordForm(forms.ModelForm):
+    """Form for wash distillation records"""
     class Meta:
-        model = DistillationRecord
+        model = WashRecord
         fields = [
             'description', 'faints_in_l', 'from_field', 'to_field', 'volume_in_l',
-            'start_date', 'date', 'abv_harts', 'lal',
-            'fores_out', 'heads_out', 'harts_out', 'tails_out', 'waste_out'
+            'start_date', 'date',
+            'fores_out', 'heads_out', 'harts_out', 'harts_out_location', 'tails_out', 'waste_out',
+            'abv_harts', 'lal'
         ]
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'e.g., Wash Run'}),
@@ -37,13 +38,44 @@ class DistillationRecordForm(forms.ModelForm):
             'volume_in_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 100.00'}),
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'date': forms.DateInput(attrs={'type': 'date'}),
-            'abv_harts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 65.00'}),
-            'lal': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 45.00'}),
             'fores_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 0.50'}),
             'heads_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 2.00'}),
             'harts_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 70.00'}),
+            'harts_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
             'tails_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5.00'}),
             'waste_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 20.00'}),
+            'abv_harts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 65.00'}),
+            'lal': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 45.00'}),
+        }
+
+
+class DistillationRecordForm(forms.ModelForm):
+    """Form for distillation records (Spirit 1, Spirit 2)"""
+    class Meta:
+        model = DistillationRecord
+        fields = [
+            'description', 'faints_in_l', 'from_field', 'to_field', 'volume_in_l',
+            'start_date', 'date',
+            'fores_out', 'heads_out', 'harts_out', 'abv_harts', 'harts_out_location',
+            'tails_out', 'faints_out_location', 'waste_out', 'lal'
+        ]
+        widgets = {
+            'description': forms.TextInput(attrs={'placeholder': 'e.g., Spirit Run'}),
+            'faints_in_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 10.00'}),
+            'from_field': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
+            'to_field': forms.TextInput(attrs={'placeholder': 'e.g., Still A'}),
+            'volume_in_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 100.00'}),
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'fores_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 0.50'}),
+            'heads_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 2.00'}),
+            'harts_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 70.00'}),
+            'abv_harts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 85.00'}),
+            'harts_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
+            'tails_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5.00'}),
+            'faints_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Faints Tank'}),
+            'waste_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 20.00'}),
+            'lal': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 59.50'}),
         }
 
 
@@ -51,9 +83,11 @@ class TotalsRecordForm(forms.ModelForm):
     """Form for totals records"""
     class Meta:
         model = TotalsRecord
-        fields = ['description', 'faints_to_storage_l', 'faints_abv']
+        fields = ['description', 'harts_to_storage_location', 'harts_abv', 'faints_to_storage_l', 'faints_abv']
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'Totals'}),
+            'harts_to_storage_location': forms.TextInput(attrs={'placeholder': 'e.g., Hearts Tank 1'}),
+            'harts_abv': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 75.00'}),
             'faints_to_storage_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 50.00'}),
             'faints_abv': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 25.00'}),
         }

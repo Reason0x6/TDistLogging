@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import HttpResponse
 from django.utils import timezone
-from distillery.forms import FermentationRecordForm, DistillationRecordForm, TotalsRecordForm, ProductRecordForm
-from distillery.models import Batch, FermentationRecord, DistillationRecord, TotalsRecord, ProductRecord
+from distillery.forms import FermentationRecordForm, WashRecordForm, DistillationRecordForm, TotalsRecordForm, ProductRecordForm
+from distillery.models import Batch, FermentationRecord, WashRecord, DistillationRecord, TotalsRecord, ProductRecord
 from django.db.models import Q
 from datetime import date
 import csv
@@ -40,6 +40,7 @@ def full_log(request):
     
     # Gather all records from all types
     fermentation_records = FermentationRecord.objects.all()
+    wash_records = WashRecord.objects.all()
     distillation_records = DistillationRecord.objects.all()
     totals_records = TotalsRecord.objects.all()
     
@@ -47,6 +48,11 @@ def full_log(request):
     if query:
         fermentation_records = fermentation_records.filter(
             Q(description__icontains=query) |
+            Q(to_field__icontains=query)
+        )
+        wash_records = wash_records.filter(
+            Q(description__icontains=query) |
+            Q(from_field__icontains=query) |
             Q(to_field__icontains=query)
         )
         distillation_records = distillation_records.filter(
@@ -64,6 +70,13 @@ def full_log(request):
     for record in fermentation_records:
         all_records.append({
             'type': 'Fermentation',
+            'record': record,
+            'date': record.date
+        })
+    
+    for record in wash_records:
+        all_records.append({
+            'type': 'Wash',
             'record': record,
             'date': record.date
         })
@@ -140,7 +153,7 @@ def create_record(request, batch_id, section, index):
     # Map section to record type and field name
     section_map = {
         'Fermentation': ('fermentation', FermentationRecordForm, 'Fermentation'),
-        'Wash': ('distillation', DistillationRecordForm, 'Wash Run'),
+        'Wash': ('wash', WashRecordForm, 'Wash Run'),
         'Spirit 1': ('distillation', DistillationRecordForm, 'Spirit Run 1'),
         'Spirit 2': ('distillation', DistillationRecordForm, 'Spirit Run 2'),
         'Totals': ('totals', TotalsRecordForm, 'Totals')
@@ -178,7 +191,7 @@ def create_record(request, batch_id, section, index):
         # Add date fields based on record type
         if record_type == 'fermentation':
             initial_data.update({'start_date': today, 'date': today})
-        elif record_type == 'distillation':
+        elif record_type in ['wash', 'distillation']:
             initial_data.update({'start_date': today, 'date': today})
         
         form = FormClass(initial=initial_data)
@@ -207,8 +220,8 @@ def edit_record(request, batch_id, record_id):
         FormClass = FermentationRecordForm
     elif batch.wash and batch.wash.id == record_id:
         record = batch.wash
-        record_type = 'distillation'
-        FormClass = DistillationRecordForm
+        record_type = 'wash'
+        FormClass = WashRecordForm
     elif batch.spirit_1 and batch.spirit_1.id == record_id:
         record = batch.spirit_1
         record_type = 'distillation'
@@ -287,13 +300,14 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['Volume (L)', record.volume_in_l or ''])
         writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
         writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
-        writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
-        writer.writerow(['LAL', record.lal or ''])
         writer.writerow(['Fores Out (L)', record.fores_out or ''])
         writer.writerow(['Heads Out (L)', record.heads_out or ''])
         writer.writerow(['Harts Out (L)', record.harts_out or ''])
+        writer.writerow(['Hearts Out Location', record.harts_out_location or ''])
         writer.writerow(['Tails Out (L)', record.tails_out or ''])
         writer.writerow(['Waste Out (L)', record.waste_out or ''])
+        writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+        writer.writerow(['LAL', record.lal or ''])
         writer.writerow([])
     
     # Export Spirit 1
@@ -308,13 +322,15 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['Volume (L)', record.volume_in_l or ''])
         writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
         writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
-        writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
-        writer.writerow(['LAL', record.lal or ''])
         writer.writerow(['Fores Out (L)', record.fores_out or ''])
         writer.writerow(['Heads Out (L)', record.heads_out or ''])
         writer.writerow(['Harts Out (L)', record.harts_out or ''])
+        writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+        writer.writerow(['Hearts Out Location', record.harts_out_location or ''])
         writer.writerow(['Tails Out (L)', record.tails_out or ''])
+        writer.writerow(['Faints Out Location', record.faints_out_location or ''])
         writer.writerow(['Waste Out (L)', record.waste_out or ''])
+        writer.writerow(['LAL', record.lal or ''])
         writer.writerow([])
     
     # Export Spirit 2
@@ -329,13 +345,15 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['Volume (L)', record.volume_in_l or ''])
         writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
         writer.writerow(['End Date', record.date.strftime('%Y-%m-%d') if record.date else ''])
-        writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
-        writer.writerow(['LAL', record.lal or ''])
         writer.writerow(['Fores Out (L)', record.fores_out or ''])
         writer.writerow(['Heads Out (L)', record.heads_out or ''])
         writer.writerow(['Harts Out (L)', record.harts_out or ''])
+        writer.writerow(['ABV (Harts) %', record.abv_harts or ''])
+        writer.writerow(['Hearts Out Location', record.harts_out_location or ''])
         writer.writerow(['Tails Out (L)', record.tails_out or ''])
+        writer.writerow(['Faints Out Location', record.faints_out_location or ''])
         writer.writerow(['Waste Out (L)', record.waste_out or ''])
+        writer.writerow(['LAL', record.lal or ''])
         writer.writerow([])
     
     # Export Totals
@@ -343,6 +361,8 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['=== Totals ==='])
         record = batch.totals
         writer.writerow(['Field', 'Value'])
+        writer.writerow(['Hearts to Storage Location', record.harts_to_storage_location or ''])
+        writer.writerow(['Hearts ABV (%)', record.harts_abv or ''])
         writer.writerow(['Faints to Storage (L)', record.faints_to_storage_l or ''])
         writer.writerow(['Faints ABV (%)', record.faints_abv or ''])
         

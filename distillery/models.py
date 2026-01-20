@@ -25,8 +25,38 @@ class FermentationRecord(models.Model):
         return f"Fermentation ({self.date})"
 
 
+class WashRecord(models.Model):
+    """Record for wash distillation runs"""
+    description = models.CharField(max_length=255, default="Wash Run", help_text="Description of the run")
+    faints_in_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Faints in (L)", help_text="Faints input in litres", blank=True, null=True)
+    from_field = models.CharField(max_length=100, verbose_name="From", help_text="Source location", blank=True, null=True)
+    to_field = models.CharField(max_length=100, verbose_name="To", help_text="Destination location", blank=True, null=True)
+    volume_in_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Volume (L)", help_text="Volume in litres", blank=True, null=True)
+    start_date = models.DateField(help_text="Start date", blank=True, null=True)
+    date = models.DateField(verbose_name="End Date", help_text="End date", blank=True, null=True)
+    fores_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Fores out (L)", help_text="Foreshots output", blank=True, null=True)
+    heads_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Heads out (L)", help_text="Heads output", blank=True, null=True)
+    harts_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Harts out (L)", help_text="Hearts output", blank=True, null=True)
+    harts_out_location = models.CharField(max_length=100, verbose_name="Hearts Out Location", help_text="Location of hearts output", blank=True, null=True)
+    tails_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tails out (L)", help_text="Tails output", blank=True, null=True)
+    waste_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Waste out (L)", help_text="Waste output", blank=True, null=True)
+    abv_harts = models.FloatField(verbose_name="ABV (Harts) %", help_text="ABV of hearts cut", blank=True, null=True)
+    lal = models.FloatField(verbose_name="LAL", help_text="Litres of Absolute Alcohol", blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-date']
+        verbose_name = "Wash Record"
+        verbose_name_plural = "Wash Records"
+    
+    def __str__(self):
+        return f"{self.description} ({self.date})"
+
+
 class DistillationRecord(models.Model):
-    """Record for wash/spirit distillation runs"""
+    """Record for spirit distillation runs (Spirit 1, Spirit 2)"""
     description = models.CharField(max_length=255, help_text="Description of the run")
     faints_in_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Faints in (L)", help_text="Faints input in litres", blank=True, null=True)
     from_field = models.CharField(max_length=100, verbose_name="From", help_text="Source location", blank=True, null=True)
@@ -34,13 +64,15 @@ class DistillationRecord(models.Model):
     volume_in_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Volume (L)", help_text="Volume in litres", blank=True, null=True)
     start_date = models.DateField(help_text="Start date", blank=True, null=True)
     date = models.DateField(verbose_name="End Date", help_text="End date", blank=True, null=True)
-    abv_harts = models.FloatField(verbose_name="ABV (Harts) %", help_text="ABV of hearts cut", blank=True, null=True)
-    lal = models.FloatField(verbose_name="LAL", help_text="Litres of Absolute Alcohol", blank=True, null=True)
     fores_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Fores out (L)", help_text="Foreshots output", blank=True, null=True)
     heads_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Heads out (L)", help_text="Heads output", blank=True, null=True)
     harts_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Harts out (L)", help_text="Hearts output", blank=True, null=True)
+    abv_harts = models.FloatField(verbose_name="ABV (Harts) %", help_text="ABV of hearts cut", blank=True, null=True)
+    harts_out_location = models.CharField(max_length=100, verbose_name="Hearts Out Location", help_text="Location of hearts output", blank=True, null=True)
     tails_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tails out (L)", help_text="Tails output", blank=True, null=True)
+    faints_out_location = models.CharField(max_length=100, verbose_name="Faints Out Location", help_text="Location of faints output", blank=True, null=True)
     waste_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Waste out (L)", help_text="Waste output", blank=True, null=True)
+    lal = models.FloatField(verbose_name="LAL", help_text="Litres of Absolute Alcohol", blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -57,6 +89,8 @@ class DistillationRecord(models.Model):
 class TotalsRecord(models.Model):
     """Record for batch totals"""
     description = models.CharField(max_length=255, default="Totals", help_text="Description")
+    harts_to_storage_location = models.CharField(max_length=100, verbose_name="Hearts to Storage Location", help_text="Location of hearts storage", blank=True, null=True)
+    harts_abv = models.FloatField(verbose_name="Hearts ABV (%)", help_text="ABV of stored hearts", blank=True, null=True)
     faints_to_storage_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Faints to Storage (L)", help_text="Faints stored in litres", blank=True, null=True)
     faints_abv = models.FloatField(verbose_name="Faints ABV (%)", help_text="ABV of stored faints", blank=True, null=True)
     
@@ -100,7 +134,7 @@ class Batch(models.Model):
     
     # 1:1 Relationships to records
     fermentation = models.OneToOneField(FermentationRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch')
-    wash = models.OneToOneField(DistillationRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch_wash')
+    wash = models.OneToOneField(WashRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch')
     spirit_1 = models.OneToOneField(DistillationRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch_spirit1')
     spirit_2 = models.OneToOneField(DistillationRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch_spirit2')
     totals = models.OneToOneField(TotalsRecord, on_delete=models.SET_NULL, null=True, blank=True, related_name='batch')
