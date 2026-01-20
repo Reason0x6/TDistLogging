@@ -72,6 +72,44 @@
     </div>
 </form>
 
+{% if is_edit and record_type == 'totals' and record %}
+<div style="margin-top: 2rem; background: white; border-radius: 12px; border: 1px solid #e5e5e5; overflow: hidden;">
+    <div style="background: #fafafa; border-bottom: 1px solid #e5e5e5; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.125rem; font-weight: 600; color: #1a1a1a;">Products</h2>
+            <p style="margin: 0.25rem 0 0 0; color: #666; font-size: 13px;">Products linked to this totals record</p>
+        </div>
+        <a href="{% url 'add_product' batch.batch_number record.id %}" style="padding: 0.625rem 1.25rem; background: #059669; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: all 0.2s;">
+            ➕ Add Product
+        </a>
+    </div>
+    
+    <div style="padding: 1.5rem;">
+        {% if record.products.exists %}
+        <div style="display: grid; gap: 1rem;">
+            {% for product in record.products.all %}
+            <div style="padding: 1rem 1.25rem; background: #fafafa; border-radius: 8px; border: 1px solid #e5e5e5;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; align-items: center;">
+                    <div><strong style="color: #666; font-size: 13px;">Product:</strong> <span style="color: #1a1a1a; font-size: 14px; font-weight: 600;">{{ product.product_name }}</span></div>
+                    <div><strong style="color: #666; font-size: 13px;">Final ABV (%):</strong> <span style="color: #1a1a1a;">{{ product.final_abv|default:"-" }}</span></div>
+                    <div><strong style="color: #666; font-size: 13px;">Final L:</strong> <span style="color: #1a1a1a;">{{ product.final_l|default:"-" }}</span></div>
+                    <div><strong style="color: #666; font-size: 13px;">Location:</strong> <span style="color: #1a1a1a;">{{ product.distillation_location|default:"-" }}</span></div>
+                    <div><strong style="color: #666; font-size: 13px;">LAL:</strong> <span style="color: #1a1a1a;">{{ product.lal|default:"-" }}</span></div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{% url 'edit_product' batch.batch_number product.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500;">Edit</a>
+                        <a href="{% url 'delete_product' batch.batch_number product.id %}" style="padding: 0.5rem 1rem; background: #dc2626; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500;">Delete</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: #999; font-style: italic; text-align: center; padding: 2rem 0;">No products added yet. Click "Add Product" to create one.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
 <style>
     /* Style form inputs */
     input[type="text"],

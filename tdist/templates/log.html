@@ -282,9 +282,6 @@
                                 <a href="{% url 'edit_record' batch.batch_number batch.totals.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
                                     ✏️ Edit Record
                                 </a>
-                                <a href="{% url 'add_product' batch.batch_number batch.totals.id %}" style="padding: 0.5rem 1rem; background: #059669; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
-                                    ➕ Add Product
-                                </a>
                             </div>
                         {% else %}
                             <p style="margin: 0 0 0.75rem 0; color: #999; font-style: italic; font-size: 13px;">No record linked</p>
