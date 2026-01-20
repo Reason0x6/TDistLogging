@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import HttpResponse
+from django.utils import timezone
 from distillery.forms import FermentationRecordForm, DistillationRecordForm, TotalsRecordForm, ProductRecordForm
 from distillery.models import Batch, FermentationRecord, DistillationRecord, TotalsRecord, ProductRecord
 from django.db.models import Q
@@ -170,8 +171,8 @@ def create_record(request, batch_id, section, index):
             messages.success(request, f'Record created and linked to Batch #{batch.batch_number}!')
             return redirect('log', batch_id=batch.batch_number)
     else:
-        # Pre-fill description and dates with today
-        today = date.today()
+        # Pre-fill description and dates with today (in configured timezone)
+        today = timezone.localdate()
         initial_data = {'description': expected_description}
         
         # Add date fields based on record type

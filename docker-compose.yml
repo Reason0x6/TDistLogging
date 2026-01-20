@@ -8,3 +8,4 @@ services:
     environment:
       - DEBUG=1
       - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD:-admin123}
+      - TZ=${TZ:-Australia/Sydney}
