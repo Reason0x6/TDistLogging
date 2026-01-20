@@ -7,7 +7,7 @@ echo "Ensuring db directory exists..."
 mkdir -p /app/db
 
 echo "Running database migrations..."
-python manage.py migrate --noinput
+python manage.py migrate --noinput --fake-initial
 
 echo "Creating admin user..."
 python create_admin.py
