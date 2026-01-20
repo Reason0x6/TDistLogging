@@ -7,9 +7,6 @@ echo "Ensuring db directory exists..."
 mkdir -p /app/db
 
 echo "Running database migrations..."
-# Fake migration 0005 if tables already exist
-python manage.py migrate distillery 0005 --fake 2>/dev/null || true
-# Run remaining migrations normally
 python manage.py migrate --noinput
 
 echo "Creating admin user..."
