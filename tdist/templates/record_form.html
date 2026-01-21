@@ -141,4 +141,122 @@
     }
 </style>
 
+<script>
+    // Auto-calculation for Fermentation records: ABV and LAL
+    {% if record_type == 'fermentation' %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const sgStart = document.getElementById('id_sg_start');
+        const sgEnd = document.getElementById('id_sg_end');
+        const volumeInL = document.getElementById('id_volume_in_l');
+        const abv = document.getElementById('id_abv');
+        const lal = document.getElementById('id_lal');
+        
+        // Calculate ABV when SG values change
+        function calculateABV() {
+            const sgStartVal = parseFloat(sgStart.value);
+            const sgEndVal = parseFloat(sgEnd.value);
+            
+            if (sgStartVal && sgEndVal) {
+                const abvValue = (sgStartVal - sgEndVal) * 131.25;
+                abv.value = abvValue.toFixed(2);
+                calculateLAL(); // Trigger LAL calculation
+            }
+        }
+        
+        // Calculate LAL when Volume and ABV have values
+        function calculateLAL() {
+            const volumeVal = parseFloat(volumeInL.value);
+            const abvVal = parseFloat(abv.value);
+            
+            if (volumeVal && abvVal) {
+                const lalValue = volumeVal * (abvVal / 100);
+                lal.value = lalValue.toFixed(2);
+            }
+        }
+        
+        // Attach event listeners
+        if (sgStart && sgEnd) {
+            sgStart.addEventListener('input', calculateABV);
+            sgEnd.addEventListener('input', calculateABV);
+        }
+        
+        if (volumeInL && abv) {
+            volumeInL.addEventListener('input', calculateLAL);
+            abv.addEventListener('input', calculateLAL);
+        }
+    });
+    {% endif %}
+    
+    // Auto-calculation for Wash records: ABV and LAL
+    {% if record_type == 'wash' %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const sgStart = document.getElementById('id_sg_start');
+        const sgEnd = document.getElementById('id_sg_end');
+        const volumeInL = document.getElementById('id_volume_in_l');
+        const abvHarts = document.getElementById('id_abv_harts');
+        const lal = document.getElementById('id_lal');
+        
+        // Calculate ABV when SG values change
+        function calculateABV() {
+            const sgStartVal = parseFloat(sgStart.value);
+            const sgEndVal = parseFloat(sgEnd.value);
+            
+            if (sgStartVal && sgEndVal) {
+                const abv = (sgStartVal - sgEndVal) * 131.25;
+                abvHarts.value = abv.toFixed(2);
+                calculateLAL(); // Trigger LAL calculation
+            }
+        }
+        
+        // Calculate LAL when Volume and ABV have values
+        function calculateLAL() {
+            const volumeVal = parseFloat(volumeInL.value);
+            const abvVal = parseFloat(abvHarts.value);
+            
+            if (volumeVal && abvVal) {
+                const lalValue = volumeVal * (abvVal / 100);
+                lal.value = lalValue.toFixed(2);
+            }
+        }
+        
+        // Attach event listeners
+        if (sgStart && sgEnd) {
+            sgStart.addEventListener('input', calculateABV);
+            sgEnd.addEventListener('input', calculateABV);
+        }
+        
+        if (volumeInL && abvHarts) {
+            volumeInL.addEventListener('input', calculateLAL);
+            abvHarts.addEventListener('input', calculateLAL);
+        }
+    });
+    {% endif %}
+    
+    // Auto-calculation for Spirit records: LAL only
+    {% if record_type == 'distillation' %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const volumeInL = document.getElementById('id_volume_in_l');
+        const abvHarts = document.getElementById('id_abv_harts');
+        const lal = document.getElementById('id_lal');
+        
+        // Calculate LAL when Volume and ABV have values
+        function calculateLAL() {
+            const volumeVal = parseFloat(volumeInL.value);
+            const abvVal = parseFloat(abvHarts.value);
+            
+            if (volumeVal && abvVal) {
+                const lalValue = volumeVal * (abvVal / 100);
+                lal.value = lalValue.toFixed(2);
+            }
+        }
+        
+        // Attach event listeners
+        if (volumeInL && abvHarts) {
+            volumeInL.addEventListener('input', calculateLAL);
+            abvHarts.addEventListener('input', calculateLAL);
+        }
+    });
+    {% endif %}
+</script>
+
 {% endblock %}
