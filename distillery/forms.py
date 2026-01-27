@@ -139,15 +139,16 @@ class TotalsRecordForm(forms.ModelForm):
     """Form for totals records"""
     class Meta:
         model = TotalsRecord
-        fields = ['description', 'hearts_to_storage_location', 'hearts_abv', 'hearts_to_storage_l', 'faints_to_storage_location', 'faints_to_storage_l', 'faints_abv']
+        fields = ['description', 'hearts_to_storage_location', 'hearts_abv', 'hearts_to_storage_l', 'faints_to_storage_location', 'faints_abv', 'faints_to_storage_l']
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'Totals'}),
             'hearts_to_storage_location': forms.TextInput(attrs={'placeholder': 'e.g., Hearts Tank 1'}),
             'hearts_abv': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 75.00'}),
             'hearts_to_storage_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 100.00'}),
             'faints_to_storage_location': forms.TextInput(attrs={'placeholder': 'e.g., Faints Tank 1'}),
-            'faints_to_storage_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 50.00'}),
             'faints_abv': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 25.00'}),
+            'faints_to_storage_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 50.00'}),
+            
         }
 
 
