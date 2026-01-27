@@ -38,11 +38,11 @@ class WashRecord(models.Model):
     sg_end = models.FloatField(verbose_name="SG End", help_text="Ending specific gravity (Final Gravity)", blank=True, null=True)
     fores_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Fores out (L)", help_text="Foreshots output", blank=True, null=True)
     heads_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Heads out (L)", help_text="Heads output", blank=True, null=True)
-    harts_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Harts out (L)", help_text="Hearts output", blank=True, null=True)
-    harts_out_location = models.CharField(max_length=100, verbose_name="Hearts Out Location", help_text="Location of hearts output", blank=True, null=True)
+    hearts_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Hearts out (L)", help_text="Hearts output", blank=True, null=True)
+    hearts_out_location = models.CharField(max_length=100, verbose_name="Hearts Out Location", help_text="Location of hearts output", blank=True, null=True)
     tails_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tails out (L)", help_text="Tails output", blank=True, null=True)
     waste_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Waste out (L)", help_text="Waste output", blank=True, null=True)
-    abv_harts = models.FloatField(verbose_name="ABV (Harts) %", help_text="ABV of hearts cut (auto-calculated from SG)", blank=True, null=True)
+    abv_hearts = models.FloatField(verbose_name="ABV (Hearts) %", help_text="ABV of hearts cut (auto-calculated from SG)", blank=True, null=True)
     lal = models.FloatField(verbose_name="LAL", help_text="Litres of Absolute Alcohol (auto-calculated)", blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -68,9 +68,9 @@ class DistillationRecord(models.Model):
     date = models.DateField(verbose_name="End Date", help_text="End date", blank=True, null=True)
     fores_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Fores out (L)", help_text="Foreshots output", blank=True, null=True)
     heads_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Heads out (L)", help_text="Heads output", blank=True, null=True)
-    harts_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Harts out (L)", help_text="Hearts output", blank=True, null=True)
-    abv_harts = models.FloatField(verbose_name="ABV (Harts) %", help_text="ABV of hearts cut", blank=True, null=True)
-    harts_out_location = models.CharField(max_length=100, verbose_name="Hearts Out Location", help_text="Location of hearts output", blank=True, null=True)
+    hearts_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Hearts out (L)", help_text="Hearts output", blank=True, null=True)
+    abv_hearts = models.FloatField(verbose_name="ABV (Hearts) %", help_text="ABV of hearts cut", blank=True, null=True)
+    hearts_out_location = models.CharField(max_length=100, verbose_name="Hearts Out Location", help_text="Location of hearts output", blank=True, null=True)
     tails_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tails out (L)", help_text="Tails output", blank=True, null=True)
     faints_out_location = models.CharField(max_length=100, verbose_name="Faints Out Location", help_text="Location of faints output", blank=True, null=True)
     waste_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Waste out (L)", help_text="Waste output", blank=True, null=True)
@@ -91,8 +91,11 @@ class DistillationRecord(models.Model):
 class TotalsRecord(models.Model):
     """Record for batch totals"""
     description = models.CharField(max_length=255, default="Totals", help_text="Description")
-    harts_to_storage_location = models.CharField(max_length=100, verbose_name="Hearts to Storage Location", help_text="Location of hearts storage", blank=True, null=True)
-    harts_abv = models.FloatField(verbose_name="Hearts ABV (%)", help_text="ABV of stored hearts", blank=True, null=True)
+    hearts_to_storage_location = models.CharField(max_length=100, verbose_name="Hearts to Storage Location", help_text="Location of hearts storage", blank=True, null=True)
+    hearts_abv = models.FloatField(verbose_name="Hearts ABV (%)", help_text="ABV of stored hearts", blank=True, null=True)
+    hearts_to_storage_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Hearts to Storage (L)", help_text="Hearts stored in litres", blank=True, null=True)
+
+    faints_to_storage_location = models.CharField(max_length=100, verbose_name="Faints to Storage Location", help_text="Location of faints storage", blank=True, null=True)
     faints_to_storage_l = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Faints to Storage (L)", help_text="Faints stored in litres", blank=True, null=True)
     faints_abv = models.FloatField(verbose_name="Faints ABV (%)", help_text="ABV of stored faints", blank=True, null=True)
     

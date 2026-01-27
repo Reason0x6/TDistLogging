@@ -48,8 +48,8 @@ class WashRecordForm(forms.ModelForm):
         fields = [
             'description', 'faints_in_l', 'from_field', 'to_field', 'volume_in_l',
             'start_date', 'sg_start', 'date', 'sg_end',
-            'fores_out', 'heads_out', 'harts_out', 'harts_out_location', 'tails_out', 'waste_out',
-            'abv_harts', 'lal'
+            'fores_out', 'heads_out', 'hearts_out', 'hearts_out_location', 'tails_out', 'waste_out',
+            'abv_hearts', 'lal'
         ]
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'e.g., Wash Run'}),
@@ -63,11 +63,11 @@ class WashRecordForm(forms.ModelForm):
             'sg_end': forms.NumberInput(attrs={'step': '0.0001', 'placeholder': 'e.g., 0.9900', 'class': 'calc-input'}),
             'fores_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 0.50'}),
             'heads_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 2.00'}),
-            'harts_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 70.00'}),
-            'harts_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
+            'hearts_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 70.00'}),
+            'hearts_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
             'tails_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5.00'}),
             'waste_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 20.00'}),
-            'abv_harts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'Auto-calculated', 'class': 'calc-input', 'readonly': False}),
+            'abv_hearts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'Auto-calculated', 'class': 'calc-input', 'readonly': False}),
             'lal': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'Auto-calculated', 'class': 'calc-input', 'readonly': False}),
         }
     
@@ -76,19 +76,19 @@ class WashRecordForm(forms.ModelForm):
         sg_start = cleaned_data.get('sg_start')
         sg_end = cleaned_data.get('sg_end')
         volume_in_l = cleaned_data.get('volume_in_l')
-        abv_harts = cleaned_data.get('abv_harts')
+        abv_hearts = cleaned_data.get('abv_hearts')
         
         # Calculate ABV if SG values are provided and ABV is not manually set
-        if sg_start and sg_end and not abv_harts:
-            cleaned_data['abv_harts'] = round((sg_start - sg_end) * 131.25, 2)
+        if sg_start and sg_end and not abv_hearts:
+            cleaned_data['abv_hearts'] = round((sg_start - sg_end) * 131.25, 2)
         
         # Use the calculated or provided ABV for LAL calculation
-        abv_harts = cleaned_data.get('abv_harts')
+        abv_hearts = cleaned_data.get('abv_hearts')
         lal = cleaned_data.get('lal')
         
         # Calculate LAL if volume and ABV are provided and LAL is not manually set
-        if volume_in_l and abv_harts and not lal:
-            cleaned_data['lal'] = round(float(volume_in_l) * (abv_harts / 100), 2)
+        if volume_in_l and abv_hearts and not lal:
+            cleaned_data['lal'] = round(float(volume_in_l) * (abv_hearts / 100), 2)
         
         return cleaned_data
 
@@ -100,7 +100,7 @@ class DistillationRecordForm(forms.ModelForm):
         fields = [
             'description', 'faints_in_l', 'from_field', 'to_field', 'volume_in_l',
             'start_date', 'date',
-            'fores_out', 'heads_out', 'harts_out', 'abv_harts', 'harts_out_location',
+            'fores_out', 'heads_out', 'hearts_out', 'abv_hearts', 'hearts_out_location',
             'tails_out', 'faints_out_location', 'waste_out', 'lal'
         ]
         widgets = {
@@ -113,9 +113,9 @@ class DistillationRecordForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
             'fores_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 0.50'}),
             'heads_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 2.00'}),
-            'harts_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 70.00'}),
-            'abv_harts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 85.00', 'class': 'calc-input'}),
-            'harts_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
+            'hearts_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 70.00'}),
+            'abv_hearts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 85.00', 'class': 'calc-input'}),
+            'hearts_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
             'tails_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5.00'}),
             'faints_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Faints Tank'}),
             'waste_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 20.00'}),
@@ -125,12 +125,12 @@ class DistillationRecordForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         volume_in_l = cleaned_data.get('volume_in_l')
-        abv_harts = cleaned_data.get('abv_harts')
+        abv_hearts = cleaned_data.get('abv_hearts')
         lal = cleaned_data.get('lal')
         
         # Calculate LAL if volume and ABV are provided and LAL is not manually set
-        if volume_in_l and abv_harts and not lal:
-            cleaned_data['lal'] = round(float(volume_in_l) * (abv_harts / 100), 2)
+        if volume_in_l and abv_hearts and not lal:
+            cleaned_data['lal'] = round(float(volume_in_l) * (abv_hearts / 100), 2)
         
         return cleaned_data
 
@@ -139,11 +139,13 @@ class TotalsRecordForm(forms.ModelForm):
     """Form for totals records"""
     class Meta:
         model = TotalsRecord
-        fields = ['description', 'harts_to_storage_location', 'harts_abv', 'faints_to_storage_l', 'faints_abv']
+        fields = ['description', 'hearts_to_storage_location', 'hearts_abv', 'hearts_to_storage_l', 'faints_to_storage_location', 'faints_to_storage_l', 'faints_abv']
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'Totals'}),
-            'harts_to_storage_location': forms.TextInput(attrs={'placeholder': 'e.g., Hearts Tank 1'}),
-            'harts_abv': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 75.00'}),
+            'hearts_to_storage_location': forms.TextInput(attrs={'placeholder': 'e.g., Hearts Tank 1'}),
+            'hearts_abv': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 75.00'}),
+            'hearts_to_storage_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 100.00'}),
+            'faints_to_storage_location': forms.TextInput(attrs={'placeholder': 'e.g., Faints Tank 1'}),
             'faints_to_storage_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 50.00'}),
             'faints_abv': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 25.00'}),
         }
