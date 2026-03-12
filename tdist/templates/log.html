@@ -69,7 +69,7 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
-                                <a href="{% url 'edit_record' batch.batch_number batch.fermentation.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                <a href="{% url 'edit_record' batch.batch_number 'fermentation' batch.fermentation.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
                                     ✏️ Edit Record
                                 </a>
                             </div>
@@ -121,7 +121,7 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
-                                <a href="{% url 'edit_record' batch.batch_number batch.wash.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                <a href="{% url 'edit_record' batch.batch_number 'wash' batch.wash.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
                                     ✏️ Edit Record
                                 </a>
                             </div>
@@ -172,7 +172,7 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
-                                <a href="{% url 'edit_record' batch.batch_number batch.spirit_1.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                <a href="{% url 'edit_record' batch.batch_number 'spirit_1' batch.spirit_1.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
                                     ✏️ Edit Record
                                 </a>
                             </div>
@@ -223,7 +223,7 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
-                                <a href="{% url 'edit_record' batch.batch_number batch.spirit_2.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                <a href="{% url 'edit_record' batch.batch_number 'spirit_2' batch.spirit_2.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
                                     ✏️ Edit Record
                                 </a>
                             </div>
@@ -291,7 +291,7 @@
                             {% endif %}
                             
                             <div style="display: flex; gap: 0.5rem;">
-                                <a href="{% url 'edit_record' batch.batch_number batch.totals.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+                                <a href="{% url 'edit_record' batch.batch_number 'totals' batch.totals.id %}" style="padding: 0.5rem 1rem; background: #1a1a1a; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.2s;">
                                     ✏️ Edit Record
                                 </a>
                             </div>

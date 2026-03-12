@@ -205,39 +205,38 @@ def create_record(request, batch_id, section, index):
         'is_edit': False
     })
 
-def edit_record(request, batch_id, record_id):
+def edit_record(request, batch_id, record_type, record_id):
     """Edit an existing record."""
     batch = get_object_or_404(Batch, batch_number=batch_id)
-    
-    # Determine record type by checking batch relationships
+
+    # Determine record and form class based on the passed record_type
     record = None
-    record_type = None
     FormClass = None
-    
-    if batch.fermentation and batch.fermentation.id == record_id:
+
+    if record_type == 'fermentation':
         record = batch.fermentation
-        record_type = 'fermentation'
         FormClass = FermentationRecordForm
-    elif batch.wash and batch.wash.id == record_id:
+    elif record_type == 'wash':
         record = batch.wash
-        record_type = 'wash'
         FormClass = WashRecordForm
-    elif batch.spirit_1 and batch.spirit_1.id == record_id:
+    elif record_type == 'spirit_1':
         record = batch.spirit_1
-        record_type = 'distillation'
         FormClass = DistillationRecordForm
-    elif batch.spirit_2 and batch.spirit_2.id == record_id:
+    elif record_type == 'spirit_2':
         record = batch.spirit_2
-        record_type = 'distillation'
         FormClass = DistillationRecordForm
-    elif batch.totals and batch.totals.id == record_id:
+    elif record_type == 'totals':
         record = batch.totals
-        record_type = 'totals'
         FormClass = TotalsRecordForm
     else:
+        messages.error(request, 'Invalid record type.')
+        return redirect('log', batch_id=batch.batch_number)
+
+    # Validate record exists and matches provided record_id
+    if not record or record.id != record_id:
         messages.error(request, 'Record not found or not linked to this batch.')
         return redirect('log', batch_id=batch.batch_number)
-    
+
     if request.method == 'POST':
         form = FormClass(request.POST, instance=record)
         if form.is_valid():
@@ -246,7 +245,7 @@ def edit_record(request, batch_id, record_id):
             return redirect('log', batch_id=batch.batch_number)
     else:
         form = FormClass(instance=record)
-    
+
     return render(request, 'record_form.html', {
         'form': form,
         'batch': batch,

@@ -6,9 +6,10 @@ class FermentationRecordForm(forms.ModelForm):
     """Form for fermentation records"""
     class Meta:
         model = FermentationRecord
-        fields = ['description', 'to_field', 'volume_in_l', 'start_date', 'sg_start', 'date', 'sg_end', 'abv', 'lal']
+        fields = ['description', 'to_field', 'volume_in_l', 'start_date', 'sg_start', 'date', 'sg_end', 'abv', 'lal', 'notes']
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'Fermentation'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'Notes', 'rows': 3}),
             'to_field': forms.TextInput(attrs={'placeholder': 'e.g., Fermenter 1'}),
             'volume_in_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 100.00', 'class': 'calc-input'}),
             'start_date': forms.DateInput(attrs={'type': 'date'}),
@@ -47,41 +48,34 @@ class WashRecordForm(forms.ModelForm):
         model = WashRecord
         fields = [
             'description', 'faints_in_l', 'from_field', 'to_field', 'volume_in_l',
-            'start_date', 'sg_start', 'date', 'sg_end',
+            'start_date',  'date', 
             'fores_out', 'heads_out', 'hearts_out', 'hearts_out_location', 'tails_out', 'waste_out',
-            'abv_hearts', 'lal'
+            'abv_hearts', 'lal', 'notes'
         ]
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'e.g., Wash Run'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'Notes', 'rows': 3}),
             'faints_in_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 10.00'}),
             'from_field': forms.TextInput(attrs={'placeholder': 'e.g., Fermenter 1'}),
             'to_field': forms.TextInput(attrs={'placeholder': 'e.g., Still A'}),
             'volume_in_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 100.00', 'class': 'calc-input'}),
             'start_date': forms.DateInput(attrs={'type': 'date'}),
-            'sg_start': forms.NumberInput(attrs={'step': '0.0001', 'placeholder': 'e.g., 1.0500', 'class': 'calc-input'}),
             'date': forms.DateInput(attrs={'type': 'date'}),
-            'sg_end': forms.NumberInput(attrs={'step': '0.0001', 'placeholder': 'e.g., 0.9900', 'class': 'calc-input'}),
             'fores_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 0.50'}),
             'heads_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 2.00'}),
             'hearts_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 70.00'}),
             'hearts_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
             'tails_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5.00'}),
             'waste_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 20.00'}),
-            'abv_hearts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'Auto-calculated', 'class': 'calc-input', 'readonly': False}),
+            'abv_hearts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5.00', 'class': 'calc-input', 'readonly': False}),
             'lal': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'Auto-calculated', 'class': 'calc-input', 'readonly': False}),
         }
     
     def clean(self):
         cleaned_data = super().clean()
-        sg_start = cleaned_data.get('sg_start')
-        sg_end = cleaned_data.get('sg_end')
         volume_in_l = cleaned_data.get('volume_in_l')
         abv_hearts = cleaned_data.get('abv_hearts')
-        
-        # Calculate ABV if SG values are provided and ABV is not manually set
-        if sg_start and sg_end and not abv_hearts:
-            cleaned_data['abv_hearts'] = round((sg_start - sg_end) * 131.25, 2)
-        
+
         # Use the calculated or provided ABV for LAL calculation
         abv_hearts = cleaned_data.get('abv_hearts')
         lal = cleaned_data.get('lal')
@@ -101,10 +95,11 @@ class DistillationRecordForm(forms.ModelForm):
             'description', 'faints_in_l', 'from_field', 'to_field', 'volume_in_l',
             'start_date', 'date',
             'fores_out', 'heads_out', 'hearts_out', 'abv_hearts', 'hearts_out_location',
-            'tails_out', 'faints_out_location', 'waste_out', 'lal'
+            'tails_out', 'faints_out_location', 'waste_out', 'lal', 'notes'
         ]
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'e.g., Spirit Run'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'Notes', 'rows': 3}),
             'faints_in_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 10.00'}),
             'from_field': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
             'to_field': forms.TextInput(attrs={'placeholder': 'e.g., Still A'}),
@@ -139,9 +134,10 @@ class TotalsRecordForm(forms.ModelForm):
     """Form for totals records"""
     class Meta:
         model = TotalsRecord
-        fields = ['description', 'hearts_to_storage_location', 'hearts_abv', 'hearts_to_storage_l', 'faints_to_storage_location', 'faints_abv', 'faints_to_storage_l']
+        fields = ['description', 'hearts_to_storage_location', 'hearts_abv', 'hearts_to_storage_l', 'faints_to_storage_location', 'faints_abv', 'faints_to_storage_l', 'notes']
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'Totals'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'Notes', 'rows': 3}),
             'hearts_to_storage_location': forms.TextInput(attrs={'placeholder': 'e.g., Hearts Tank 1'}),
             'hearts_abv': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 75.00'}),
             'hearts_to_storage_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 100.00'}),
@@ -156,9 +152,10 @@ class ProductRecordForm(forms.ModelForm):
     """Form for product records"""
     class Meta:
         model = ProductRecord
-        fields = ['product_name', 'final_abv', 'final_l', 'distillation_location', 'lal']
+        fields = ['product_name','final_abv', 'final_l', 'distillation_location', 'lal', 'notes']
         widgets = {
             'product_name': forms.TextInput(attrs={'placeholder': 'e.g., A, B, C'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'Notes', 'rows': 3}),
             'final_abv': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 40.00'}),
             'final_l': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 100.00'}),
             'distillation_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
