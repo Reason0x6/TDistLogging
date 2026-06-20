@@ -49,7 +49,8 @@ class WashRecordForm(forms.ModelForm):
         fields = [
             'description', 'faints_in_l', 'from_field', 'to_field', 'volume_in_l',
             'start_date',  'date', 
-            'fores_out', 'heads_out', 'hearts_out', 'hearts_out_location', 'tails_out', 'waste_out',
+            'fores_out', 'heads_out', 'hearts_out', 'hearts_out_location', 'tails_out',
+            'faints_out_location', 'waste_out',
             'abv_hearts', 'lal', 'notes'
         ]
         widgets = {
@@ -66,6 +67,7 @@ class WashRecordForm(forms.ModelForm):
             'hearts_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 70.00'}),
             'hearts_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
             'tails_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5.00'}),
+            'faints_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Faints Tank'}),
             'waste_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 20.00'}),
             'abv_hearts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5.00', 'class': 'calc-input', 'readonly': False}),
             'lal': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'Auto-calculated', 'class': 'calc-input', 'readonly': False}),
@@ -73,16 +75,16 @@ class WashRecordForm(forms.ModelForm):
     
     def clean(self):
         cleaned_data = super().clean()
-        volume_in_l = cleaned_data.get('volume_in_l')
+        hearts_out = cleaned_data.get('hearts_out')
         abv_hearts = cleaned_data.get('abv_hearts')
 
         # Use the calculated or provided ABV for LAL calculation
         abv_hearts = cleaned_data.get('abv_hearts')
         lal = cleaned_data.get('lal')
         
-        # Calculate LAL if volume and ABV are provided and LAL is not manually set
-        if volume_in_l and abv_hearts and not lal:
-            cleaned_data['lal'] = round(float(volume_in_l) * (abv_hearts / 100), 2)
+        # Calculate LAL from hearts output and ABV if LAL is not manually set.
+        if hearts_out and abv_hearts and not lal:
+            cleaned_data['lal'] = round(float(hearts_out) * (abv_hearts / 100), 2)
         
         return cleaned_data
 
@@ -95,7 +97,7 @@ class DistillationRecordForm(forms.ModelForm):
             'description', 'faints_in_l', 'from_field', 'to_field', 'volume_in_l',
             'start_date', 'date',
             'fores_out', 'heads_out', 'hearts_out', 'abv_hearts', 'hearts_out_location',
-            'tails_out', 'faints_out_location', 'waste_out', 'lal', 'notes'
+            'tails_out', 'waste_out', 'lal', 'notes'
         ]
         widgets = {
             'description': forms.TextInput(attrs={'placeholder': 'e.g., Spirit Run'}),
@@ -112,20 +114,19 @@ class DistillationRecordForm(forms.ModelForm):
             'abv_hearts': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 85.00', 'class': 'calc-input'}),
             'hearts_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Tank 1'}),
             'tails_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5.00'}),
-            'faints_out_location': forms.TextInput(attrs={'placeholder': 'e.g., Faints Tank'}),
             'waste_out': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 20.00'}),
             'lal': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'Auto-calculated', 'class': 'calc-input', 'readonly': False}),
         }
     
     def clean(self):
         cleaned_data = super().clean()
-        volume_in_l = cleaned_data.get('volume_in_l')
+        hearts_out = cleaned_data.get('hearts_out')
         abv_hearts = cleaned_data.get('abv_hearts')
         lal = cleaned_data.get('lal')
         
-        # Calculate LAL if volume and ABV are provided and LAL is not manually set
-        if volume_in_l and abv_hearts and not lal:
-            cleaned_data['lal'] = round(float(volume_in_l) * (abv_hearts / 100), 2)
+        # Calculate LAL from hearts output and ABV if LAL is not manually set.
+        if hearts_out and abv_hearts and not lal:
+            cleaned_data['lal'] = round(float(hearts_out) * (abv_hearts / 100), 2)
         
         return cleaned_data
 

@@ -41,8 +41,9 @@ class WashRecord(models.Model):
     hearts_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Hearts out (L)", help_text="Hearts output", blank=True, null=True)
     hearts_out_location = models.CharField(max_length=100, verbose_name="Hearts Out Location", help_text="Location of hearts output", blank=True, null=True)
     tails_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tails out (L)", help_text="Tails output", blank=True, null=True)
+    faints_out_location = models.CharField(max_length=100, verbose_name="Faints Out Location", help_text="Location of faints output", blank=True, null=True)
     waste_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Waste out (L)", help_text="Waste output", blank=True, null=True)
-    abv_hearts = models.FloatField(verbose_name="ABV (Hearts) %", help_text="ABV of hearts cut", blank=True, null=True)
+    abv_hearts = models.FloatField(verbose_name="ABV (Hearts) %", help_text="ABV of hearts cut (auto-calculated from SG)", blank=True, null=True)
     lal = models.FloatField(verbose_name="LAL", help_text="Litres of Absolute Alcohol (auto-calculated)", blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -73,7 +74,6 @@ class DistillationRecord(models.Model):
     abv_hearts = models.FloatField(verbose_name="ABV (Hearts) %", help_text="ABV of hearts cut", blank=True, null=True)
     hearts_out_location = models.CharField(max_length=100, verbose_name="Hearts Out Location", help_text="Location of hearts output", blank=True, null=True)
     tails_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tails out (L)", help_text="Tails output", blank=True, null=True)
-    faints_out_location = models.CharField(max_length=100, verbose_name="Faints Out Location", help_text="Location of faints output", blank=True, null=True)
     waste_out = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Waste out (L)", help_text="Waste output", blank=True, null=True)
     lal = models.FloatField(verbose_name="LAL", help_text="Litres of Absolute Alcohol", blank=True, null=True)
     

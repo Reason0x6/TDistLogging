@@ -268,6 +268,7 @@ def export_batch_csv(request, batch_id):
     writer.writerow(['Batch Information'])
     writer.writerow(['Batch Number', batch.batch_number])
     writer.writerow(['Recipe', batch.recipe])
+    writer.writerow(['Notes', batch.notes or ''])
     writer.writerow(['Created', batch.created_at.strftime('%Y-%m-%d %H:%M')])
     writer.writerow(['Updated', batch.updated_at.strftime('%Y-%m-%d %H:%M')])
     writer.writerow([])  # Empty row for separation
@@ -277,6 +278,7 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['=== Fermentation ==='])
         record = batch.fermentation
         writer.writerow(['Field', 'Value'])
+        writer.writerow(['Description', record.description])
         writer.writerow(['To', record.to_field or ''])
         writer.writerow(['Volume (L)', record.volume_in_l or ''])
         writer.writerow(['Start Date', record.start_date.strftime('%Y-%m-%d') if record.start_date else ''])
@@ -285,6 +287,9 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['SG End', record.sg_end or ''])
         writer.writerow(['ABV (%)', record.abv or ''])
         writer.writerow(['LAL', record.lal or ''])
+        writer.writerow(['Notes', record.notes or ''])
+        writer.writerow(['Created', record.created_at.strftime('%Y-%m-%d %H:%M')])
+        writer.writerow(['Updated', record.updated_at.strftime('%Y-%m-%d %H:%M')])
         writer.writerow([])
     
     # Export Wash
@@ -306,9 +311,13 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['Hearts Out (L)', record.hearts_out or ''])
         writer.writerow(['Hearts Out Location', record.hearts_out_location or ''])
         writer.writerow(['Tails Out (L)', record.tails_out or ''])
+        writer.writerow(['Faints Out Location', record.faints_out_location or ''])
         writer.writerow(['Waste Out (L)', record.waste_out or ''])
         writer.writerow(['ABV (Hearts) %', record.abv_hearts or ''])
         writer.writerow(['LAL', record.lal or ''])
+        writer.writerow(['Notes', record.notes or ''])
+        writer.writerow(['Created', record.created_at.strftime('%Y-%m-%d %H:%M')])
+        writer.writerow(['Updated', record.updated_at.strftime('%Y-%m-%d %H:%M')])
         writer.writerow([])
     
     # Export Spirit 1
@@ -329,9 +338,11 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['ABV (Hearts) %', record.abv_hearts or ''])
         writer.writerow(['Hearts Out Location', record.hearts_out_location or ''])
         writer.writerow(['Tails Out (L)', record.tails_out or ''])
-        writer.writerow(['Faints Out Location', record.faints_out_location or ''])
         writer.writerow(['Waste Out (L)', record.waste_out or ''])
         writer.writerow(['LAL', record.lal or ''])
+        writer.writerow(['Notes', record.notes or ''])
+        writer.writerow(['Created', record.created_at.strftime('%Y-%m-%d %H:%M')])
+        writer.writerow(['Updated', record.updated_at.strftime('%Y-%m-%d %H:%M')])
         writer.writerow([])
     
     # Export Spirit 2
@@ -352,9 +363,11 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['ABV (Hearts) %', record.abv_hearts or ''])
         writer.writerow(['Hearts Out Location', record.hearts_out_location or ''])
         writer.writerow(['Tails Out (L)', record.tails_out or ''])
-        writer.writerow(['Faints Out Location', record.faints_out_location or ''])
         writer.writerow(['Waste Out (L)', record.waste_out or ''])
         writer.writerow(['LAL', record.lal or ''])
+        writer.writerow(['Notes', record.notes or ''])
+        writer.writerow(['Created', record.created_at.strftime('%Y-%m-%d %H:%M')])
+        writer.writerow(['Updated', record.updated_at.strftime('%Y-%m-%d %H:%M')])
         writer.writerow([])
     
     # Export Totals
@@ -362,26 +375,33 @@ def export_batch_csv(request, batch_id):
         writer.writerow(['=== Totals ==='])
         record = batch.totals
         writer.writerow(['Field', 'Value'])
+        writer.writerow(['Description', record.description])
         writer.writerow(['Hearts to Storage Location', record.hearts_to_storage_location or ''])
         writer.writerow(['Hearts ABV (%)', record.hearts_abv or ''])
         writer.writerow(['Hearts to Storage (L)', record.hearts_to_storage_l or ''])
         writer.writerow(['Faints to Storage Location', record.faints_to_storage_location or ''])
         writer.writerow(['Faints to Storage (L)', record.faints_to_storage_l or ''])
         writer.writerow(['Faints ABV (%)', record.faints_abv or ''])
+        writer.writerow(['Notes', record.notes or ''])
+        writer.writerow(['Created', record.created_at.strftime('%Y-%m-%d %H:%M')])
+        writer.writerow(['Updated', record.updated_at.strftime('%Y-%m-%d %H:%M')])
         
         # Add products if any
         products = record.products.all()
         if products.exists():
             writer.writerow([])
             writer.writerow(['Products:'])
-            writer.writerow(['Product', 'Final ABV (%)', 'Final L', 'Location', 'LAL'])
+            writer.writerow(['Product', 'Final ABV (%)', 'Final L', 'Location', 'LAL', 'Notes', 'Created', 'Updated'])
             for product in products:
                 writer.writerow([
                     product.product_name,
                     product.final_abv or '',
                     product.final_l or '',
                     product.distillation_location or '',
-                    product.lal or ''
+                    product.lal or '',
+                    product.notes or '',
+                    product.created_at.strftime('%Y-%m-%d %H:%M'),
+                    product.updated_at.strftime('%Y-%m-%d %H:%M')
                 ])
         writer.writerow([])
     

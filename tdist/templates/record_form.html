@@ -192,7 +192,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const sgStart = document.getElementById('id_sg_start');
         const sgEnd = document.getElementById('id_sg_end');
-        const volumeInL = document.getElementById('id_volume_in_l');
+        const heartsOut = document.getElementById('id_hearts_out');
         const abvHearts = document.getElementById('id_abv_hearts');
         const lal = document.getElementById('id_lal');
         
@@ -208,13 +208,13 @@
             }
         }
         
-        // Calculate LAL when Volume and ABV have values
+        // Calculate LAL when Hearts Out and ABV have values
         function calculateLAL() {
-            const volumeVal = parseFloat(volumeInL.value);
+            const hearts_out = parseFloat(heartsOut.value);
             const abvVal = parseFloat(abvHearts.value);
             
-            if (volumeVal && abvVal) {
-                const lalValue = volumeVal * (abvVal / 100);
+            if (hearts_out && abvVal) {
+                const lalValue = hearts_out * (abvVal / 100);
                 lal.value = lalValue.toFixed(2);
             }
         }
@@ -225,8 +225,8 @@
             sgEnd.addEventListener('input', calculateABV);
         }
         
-        if (volumeInL && abvHearts) {
-            volumeInL.addEventListener('input', calculateLAL);
+        if (heartsOut && abvHearts) {
+            heartsOut.addEventListener('input', calculateLAL);
             abvHearts.addEventListener('input', calculateLAL);
         }
     });
@@ -235,24 +235,24 @@
     // Auto-calculation for Spirit records: LAL only
     {% if record_type == 'distillation' %}
     document.addEventListener('DOMContentLoaded', function() {
-        const volumeInL = document.getElementById('id_volume_in_l');
+        const heartsOut = document.getElementById('id_hearts_out');
         const abvHearts = document.getElementById('id_abv_hearts');
         const lal = document.getElementById('id_lal');
         
-        // Calculate LAL when Volume and ABV have values
+        // Calculate LAL when Hearts Out and ABV have values
         function calculateLAL() {
-            const volumeVal = parseFloat(volumeInL.value);
+            const hearts_out = parseFloat(heartsOut.value);
             const abvVal = parseFloat(abvHearts.value);
             
-            if (volumeVal && abvVal) {
-                const lalValue = volumeVal * (abvVal / 100);
+            if (hearts_out && abvVal) {
+                const lalValue = hearts_out * (abvVal / 100);
                 lal.value = lalValue.toFixed(2);
             }
         }
         
         // Attach event listeners
-        if (volumeInL && abvHearts) {
-            volumeInL.addEventListener('input', calculateLAL);
+        if (heartsOut && abvHearts) {
+            heartsOut.addEventListener('input', calculateLAL);
             abvHearts.addEventListener('input', calculateLAL);
         }
     });
